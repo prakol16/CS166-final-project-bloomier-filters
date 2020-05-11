@@ -33,16 +33,23 @@ the Bloomier filter.
 ## The Birthday Paradox, and Hash Collisions
 
 Let's look again at why a naïve hash table is inefficient. To review, we assume that we
-have some hash function $$h : D\mapsto \{0, 1\}^\infty$$, where $$D$$ is the set of possible book
+have some hash function $$h : \mathcal{B}\mapsto \{0, 1\}^\infty$$, where $$\mathcal{B}$$ is the set of possible book
 titles and $$\{0, 1\}^\infty$$ is an infinite stream of random bits. Even though $$h$$ actually
 only generates finitely many pseudorandom bits, we will act as if we can consume as many bits
 as we need (in practice, we will usually only need at most 128 bits),
 and we will act as though these bits were truly random rather than pseudorandom.
 With a hash table, we create a table of size $$m$$ (here, $$m$$ is
-some tuneable parameter), and, for each book $$B$$, add the book to `table[hash(B)]`,
+some tuneable parameter), and add each book-database pair $$(B, r)$$ to the list stored at `table[hash(B)]`,
 where `hash(B)` consumes $$\log_2 m$$ bits from the hash function $$h$$ to generate an
-integer in the range $$[0, m)$$. The reason we have to store the entire title, however,
-is to resolve collisions.
+integer in the range $$[0, m)$$.
+
+This works very well for most applications, and is a simple, efficient approach. However, we always end up needing
+a collision resolution mechanism, and this makes the memory footprint of our table rather large.
+For the sake of simplicity, suppose we are storing $$\vert \mathcal{B}\vert=10$$ books
+into $$R=5$$ databases with a table size of $$m=20$$. Naïvely, you might think you only need $$m = O(n)$$ slots in the table
+in order to have a good chance of avoiding collisions, but this is not true.
+
+<center>TODO: add animation here</center>
 
 $$ \sum_{i=0}^\infty 2^{-i} = 2 $$
 
