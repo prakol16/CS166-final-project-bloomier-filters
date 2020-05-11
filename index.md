@@ -1,7 +1,6 @@
 ---
-mathjax: true
 comments: true
-title: Testing MathJax
+title: Bloomier Filters
 ---
 
 ## Welcome to GitHub Pages
