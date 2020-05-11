@@ -1,114 +1,46 @@
 ---
 comments: true
-title: Bloomier Filters
+title: Bloomier Filters (Part 1)
 mathjax: true
 ---
 
-## Welcome to GitHub Pages
+## Motivation
 
-Math equations:
+Suppose you are a librarian, collecting 20th century literature. Not in a physical
+library of course -- you manage a database of billions of books, which has to service requests
+from millions of people per second. To be able to do this, you have a central
+database which processes requests, and $$R$$ secondary databases which actually
+store the books' contents. When the central database receives a request for a particular
+book title, it reroutes the request to the whichever database that the book is stored in.
 
-Let's test some inline math $$x$$, $$y$$, $$x_1$$, $$y_1$$.
+The central database is the one under the most load here, since it receives *every* request.
+The mapping of books to database not only needs to be able to do $$O(1)$$ lookups, 
+it also needs to be able to reject books that
+aren't in any database, and ideally, it needs to be compacted
+into as little memory as possible. If the title
+of a book is around 30 bytes long, a naïve hash table would have to store every title
+in order to resolve potential collisions, for a total of $$30\text{ bytes}\times 10^{10}\text{ books}=30\text{ GB}$$.
+Surely we can do better!
 
-Now a inline math with special character: $$\vert\psi\rangle$, $x'$, $x^*$$.
+In the case $$R=1$$, (you only have one secondary database), the central database only
+needs to accept or reject books, depending on if they are in the database. What you want here is
+an ordinary *Bloom filter*. Roughly speaking, a Bloom filter probabilistically determines whether
+a particular item is in a precomputed set using a hash function. This article won't assume knowledge
+of Bloom filters, but you should definitely check them out. When $$R > 1$$, what we want is not
+to query set membership, but to lookup the book in a map. This generalization of Bloom filters is called
+the Bloomier filter.
 
-Test a display math:
+## The Birthday Paradox, and Hash Collisions
 
-$$
-   |\psi_1\rangle = a|0\rangle + b|1\rangle
-$$
+Let's look again at why a naïve hash table is inefficient. To review, we assume that we
+have some hash function $$h : D\mapsto \{0, 1\}^\infty$$, where $$D$$ is the set of possible book
+titles and $$\{0, 1\}^\infty$$ is an infinite stream of random bits. Even though $$h$$ actually
+only generates finitely many pseudorandom bit, we will act as if we can consume as many bits
+as we need (in practice, we will only need at most 128 bits, which is doable for most hash functions),
+and we will act as though these bits were truly random rather than pseudorandom. *TODO: explain why
+these assumptions are justified*
 
-Will it automatically update?
-Do I even have to refresh?
-Is it O.K.?
+$$ \sum_{i=0}^\infty 2^{-i} = 2 $$
 
-Test a display math with equation number:
+That was an example of display style math.
 
-$$
-\begin{equation}
-   |\psi_1\rangle = a|0\rangle + b|1\rangle
-\end{equation}
-$$
-
-Is it O.K.?
-
-Test a display math with equation number:
-
-$$
-  \begin{align}
-    |\psi_1\rangle &= a|0\rangle + b|1\rangle \\
-    |\psi_2\rangle &= c|0\rangle + d|1\rangle
-  \end{align}
-$$
-
-Is it O.K.?
-
-And test a display math without equaltion number:
-
-$$
-  \begin{align*}
-    |\psi_1\rangle &= a|0\rangle + b|1\rangle \\
-    |\psi_2\rangle &= c|0\rangle + d|1\rangle
-  \end{align*}
-$$
-
-Is it O.K.?
-
-Test a display math with equation number:
-
-$$
-\begin{align}
-    |\psi_1\rangle &= a|0\rangle + b|1\rangle \\
-    |\psi_2\rangle &= c|0\rangle + d|1\rangle
-\end{align}
-$$
-
-Is it O.K.?
-
-And test a display math without equaltion number:
-
-$$
-\begin{align*}
-    |\psi_1\rangle &= a|0\rangle + b|1\rangle \\
-    |\psi_2\rangle &= c|0\rangle + d|1\rangle
-\end{align*}
-$$
-
-Is it O.K.?
-
-
-You can use the [editor on GitHub](https://github.com/prakol16/CS166-final-project-bloomier-filters/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/prakol16/CS166-final-project-bloomier-filters/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
