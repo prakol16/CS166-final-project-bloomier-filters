@@ -27,7 +27,7 @@ needs to accept or reject books, depending on if they are in the database. What 
 an ordinary *Bloom filter*. Roughly speaking, a Bloom filter probabilistically determines whether
 a particular item is in a precomputed set using a hash function. This article won't assume knowledge
 of Bloom filters, but you should definitely check them out. When $$R > 1$$, what we want is not
-to query set membership, but to lookup the book in a map. This generalization of Bloom filters is called
+to store a set but to store a map. This generalization of Bloom filters is called
 the Bloomier filter.
 
 ## The Birthday Paradox, and Hash Collisions
@@ -35,10 +35,14 @@ the Bloomier filter.
 Let's look again at why a naïve hash table is inefficient. To review, we assume that we
 have some hash function $$h : D\mapsto \{0, 1\}^\infty$$, where $$D$$ is the set of possible book
 titles and $$\{0, 1\}^\infty$$ is an infinite stream of random bits. Even though $$h$$ actually
-only generates finitely many pseudorandom bit, we will act as if we can consume as many bits
-as we need (in practice, we will only need at most 128 bits, which is doable for most hash functions),
-and we will act as though these bits were truly random rather than pseudorandom. *TODO: explain why
-these assumptions are justified*
+only generates finitely many pseudorandom bits, we will act as if we can consume as many bits
+as we need (in practice, we will usually only need at most 128 bits),
+and we will act as though these bits were truly random rather than pseudorandom.
+With a hash table, we create a table of size $$m$$ (here, $$m$$ is
+some tuneable parameter), and, for each book $$B$$, add the book to `table[hash(B)]`,
+where `hash(B)` consumes $$\log_2 m$$ bits from the hash function $$h$$ to generate an
+integer in the range $$[0, m)$$. The reason we have to store the entire title, however,
+is to resolve collisions.
 
 $$ \sum_{i=0}^\infty 2^{-i} = 2 $$
 
