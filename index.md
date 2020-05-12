@@ -46,7 +46,11 @@ For the sake of simplicity, suppose we are storing $$n = \vert \mathcal{B}\vert=
 into $$R=5$$ databases with a table size of $$m=20$$. Naïvely, you might think you only need $$m = O(n)$$ slots in the table
 in order to have a good chance of avoiding collisions, but this is not true.
 
-<center>TODO: add animation here</center>
+<div class="animation" data-anim="birthdayHashCollision">
+<table>
+<tr><th>Book title</th><th>Hash</th></tr>
+</table>
+</div>
 
 In fact, you need to have $$m = O(n^2)$$ in order to have a good chance of avoiding collisions. This is related to the "birthday
 paradox," where in a group of only around $$\sqrt{365}\approx 20$$, there is already over a $40\%$ chance of some two people sharing a birthday.
@@ -63,5 +67,11 @@ which databasae the book is in. In total, we might need 12-16 bytes per table en
 ## Just add some choice!
 
 Ultimately, the insight that Bloomier filters provide is that we can actually map each element to a unique hash value -- if we provide just a little choice.
+
+<div class="animation" data-anim="twoChoicesHash">
+<table>
+<tr><th>Book title</th><th>Hash 1</th><th>Hash 2</th></tr>
+</table>
+</div>
 
 

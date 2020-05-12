@@ -20,3 +20,24 @@ span.footnote {
     color: #24B1E6;
 }
 
+.animation table {
+    width: 100%;
+}
+
+.animation .btn {
+    margin: 0px 10px 10px 0px;
+}
+
+.animation table tr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.animation tr.error {
+    background-color: #fb7979;
+}
+
+.animation td.picked {
+    background-color: #2ebf2e;
+}
+
