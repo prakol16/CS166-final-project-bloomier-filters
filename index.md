@@ -44,7 +44,8 @@ This works very well for most applications, and is a simple, efficient approach.
 a collision resolution mechanism, and this makes the memory footprint of our table rather large.
 For the sake of simplicity, suppose we are storing $$n = \vert \mathcal{B}\vert=10$$ books
 into $$R=5$$ databases with a table size of $$m=20$$. Naïvely, you might think you only need $$m = O(n)$$ slots in the table
-in order to have a good chance of avoiding collisions, but this is not true.
+in order to have a good chance of avoiding collisions, but this is not true. (In our simulation, we get no collisions only 6% of the time!
+Try it out!)
 
 <div class="animation" data-anim="birthdayHashCollision">
 <table>
@@ -67,11 +68,32 @@ which databasae the book is in. In total, we might need 12-16 bytes per table en
 ## Just add some choice!
 
 Ultimately, the insight that Bloomier filters provide is that we can actually map each element to a unique hash value -- if we provide just a little choice.
+Here, we use $$k=2$$ hash choices for each element, and we pick one of the two hashes for each element such that every element is associated
+with a unique hash. This works over 90% of the time (for $$n=10$$ and $$m=20$$, but in general, it only requires $$m=O(n)$$ to get a reasonable probability
+that the process succeeds)!
 
 <div class="animation" data-anim="twoChoicesHash">
 <table>
 <tr><th>Book title</th><th>Hash 1</th><th>Hash 2</th></tr>
 </table>
 </div>
+
+Now, all we need to do is figure out a way to remember which of the two hashes each element is associated with! If we could do that, we would get
+a unique hash associated with each element, so it would be quite easy to associate every element with an entry in the table; we wouldn't need any collision
+resolution mechanism, and this would only require approximately $$\log R$$ bits per entry. To be able to remember whether we chose the first hash or the second
+hash for each element, we would need...
+some sort of map structure...
+which was exactly what we were trying to solve in the first place. But this is still good progress, and we will return to the idea later.
+
+Instead, we come to the biggest insight of Bloomier filters: we don't want to store which hash was the "critical hash" (the unique hash we chose for
+each element), so instead we will use all of the hashes to store each element. That way, once we create the table, we can completely forget about
+which hash was the critical hash for each book, and we don't get this Catch-22 about needing to store the critical hash in a map, when such a map
+is the very thing we were trying to create. In particular, if we use e.g. $$k=2$$ hashes for each element, we will try and make `Table[hash0(elem)] + Table[hash1(elem)]`
+equal to the value we want to associate with `elem`. Thus, when we look up `elem`, we don't actually need to know which hash we chose to be the "critical hash."
+
+How do we use the critical hash then? The critical hash will determine which element in the table we actually *change.*
+
+
+
 
 
