@@ -60,7 +60,8 @@ Moreover, every element of the list would have to store either the title itself 
 an independent hash of its title, which is another $$\log m$$ bits, and $$\log R$$ bits to indicate
 which databasae the book is in. In total, we might need 12-16 bytes per table entry, which is quite wasteful.
 
-$$ \sum_{i=0}^\infty 2^{-i} = 2 $$
+## Just add some choice!
 
-That was an example of display style math.
+Ultimately, the insight that Bloomier filters provide is that we can actually map each element to a unique hash value -- if we provide just a little choice.
+
 
