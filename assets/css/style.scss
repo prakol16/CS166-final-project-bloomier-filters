@@ -41,3 +41,34 @@ span.footnote {
     background-color: #2ebf2e;
 }
 
+.anim-with-hash-table {
+    display: flex;
+}
+
+.hash-table {
+    margin: 0px 10px;
+    max-width: fit-content;
+}
+
+.hash-table tr.hash-row > td:nth-child(2) {
+  border-right: thick solid black;
+}
+
+.hash-row > td.frozen {
+  background-color: lightgray;
+  opacity: 0.5;
+}
+
+.hash-row > td.recent-frozen {
+  background-color: gray;
+  opacity: 0.7;
+}
+
+
+.hash-row > td.critical {
+  border: red 2px dashed;
+}
+
+.anim-with-hash-table .main-table {
+    flex-grow: 1;
+}

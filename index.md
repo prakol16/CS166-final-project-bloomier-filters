@@ -56,8 +56,8 @@ Try it out!)
 In fact, you need to have $$m = O(n^2)$$ in order to have a good chance of avoiding collisions. This is related to the "birthday
 paradox," where in a group of only around $$\sqrt{365}\approx 20$$, there is already over a $40\%$ chance of some two people sharing a birthday.
 We won't prove this formally here, but intuitively, this is because there are $$\binom{n}{2}=O(n^2)$$ pairs of books. Therefore, if we want to avoid
-collisions between any two books, the chance of a collision for a particular pair should be on the order of $$1/n^2$$. Since the chance of a collision
-between a given pair of books is just $$1/m$$, we need $$m=O(n^2)$$ entries in the table to have a good chance of avoiding collisions. This takes up far too much memory.
+collisions between any two books, the chance of a collision for a particular pair should be on the order of $$1/n^2$$, so we would need
+$$m = O(n^2)$$ table entries. This takes up far too much memory.
 
 On the other hand, if we use only $$m = O(n)$$ entries, it is very likely that there will be many collisions. To resolve this in the standard way,
 we would at the very least need to have each entry of the table be a pointer to a list, which already requires 8 bytes per entry on a 64-bit system.
@@ -69,8 +69,7 @@ which databasae the book is in. In total, we might need 12-16 bytes per table en
 
 Ultimately, the insight that Bloomier filters provide is that we can actually map each element to a unique hash value -- if we provide just a little choice.
 Here, we use $$k=2$$ hash choices for each element, and we pick one of the two hashes for each element such that every element is associated
-with a unique hash. This works over 90% of the time (for $$n=10$$ and $$m=20$$, but in general, it only requires $$m=O(n)$$ to get a reasonable probability
-that the process succeeds)!
+with a unique hash. This works over 90% of the time in our simulation!
 
 <div class="animation" data-anim="twoChoicesHash">
 <table>
@@ -80,19 +79,51 @@ that the process succeeds)!
 
 Now, all we need to do is figure out a way to remember which of the two hashes each element is associated with! If we could do that, we would get
 a unique hash associated with each element, so it would be quite easy to associate every element with an entry in the table; we wouldn't need any collision
-resolution mechanism, and this would only require approximately $$\log R$$ bits per entry. To be able to remember whether we chose the first hash or the second
-hash for each element, we would need...
-some sort of map structure...
+resolution mechanism -- we could just set `T[h_c(elem)]=val`, where `T` is the table, `h_c` is either `h0` or `h1` depending on which one was the "critical hash"
+and `val` is the value we want to associate with `elem`.
+Unfortunately, to be able to remember whether we chose the first hash or the second hash for each element, we would need some sort of map structure...
 which was exactly what we were trying to solve in the first place. But this is still good progress, and we will return to the idea later.
 
-Instead, we come to the biggest insight of Bloomier filters: we don't want to store which hash was the "critical hash" (the unique hash we chose for
-each element), so instead we will use all of the hashes to store each element. That way, once we create the table, we can completely forget about
-which hash was the critical hash for each book, and we don't get this Catch-22 about needing to store the critical hash in a map, when such a map
-is the very thing we were trying to create. In particular, if we use e.g. $$k=2$$ hashes for each element, we will try and make `Table[hash0(elem)] + Table[hash1(elem)]`
-equal to the value we want to associate with `elem`. Thus, when we look up `elem`, we don't actually need to know which hash we chose to be the "critical hash."
+Instead, we come to the biggest insight of Bloomier filters: we don't want to store which hash was the critical hash,
+so instead we will use all of the hashes to store each element. That way, once we create the table, we can completely forget about
+which hash was the critical hash for each book. For example, we might try to make `T[h0(elem)] + T[h1(elem)]`
+equal to `val`. Then, when we look up `elem`, we don't actually need to know which hash we chose to be the "critical hash."
 
-How do we use the critical hash then? The critical hash will determine which element in the table we actually *change.*
+How do we use the critical hash then? The idea is this: every time we add an element `elem` to the table, 
+we will only change *either* `T[h0(elem)]` *or* `T[h1(elem)]` such that `T[h0(elem)]+T[h1(elem)]=val`, where `val` is the value we want to set.
+Which one we change is determined precisely by the critical hash.
 
+If you think about this, you will realize that the property that we want critical hashes to satisfy is stronger than what we have. 
+In this process, once we process an element `elem`, the table values
+will be set such that `T[h0(elem)]+T[h1(elem)]=val`. If we later change either `T[h0(elem)]` or `T[h1(elem)]`,
+everything will break and so we will no longer be able to recover `val` by looking up `elem`. It is not enough to say that whichever slot we write to
+will never be written to again -- we have to guarantee that all of the slots we write to or read from will be "frozen" for the rest of the algorithm.
+From this, we can formalize the real "critical hash" property that we want:
+
+**Definitions**: Suppose we process the elements in the order $$e_1, e_2, \dots e_n$$. After processing $$e_i$$, we **freeze** (this is a purely mathematical concept,
+we don't necessarily freeze anything in the code) `T[h0(e_i)], T[h1(e_i)]... T[h_k(e_i)]` so that they will never be written to again.
+
+Then, the **critical hash** $$h_c$$ of an element $$e_j$$ is one of $$h_0(e_j), h_1(e_j), \dots h_k(e_j)$$
+such that at the step we are processing $$e_j$$, the table entry at $$h_c$$ is *not* frozen. Notice this is a stronger property
+than what we had before; we still want $$h_c$$ to be different from all the critical hashes of elements that came before, so the
+critical hash is still unique, but we more -- we actually want $$h_c$$ to be different from *all* the hashes of the elements that came before.
+
+This seems like a pretty strong property, but one thing that makes it easier is that we can process the elements in any order we want. In
+order to make this doable, we also have to increase the number of hashes that we are using from $$k=2$$ to $$k=3$$. In order to convince you
+that it is actually plausible to choose critical hashes for each element despite such restrictive conditions, here is another animation (this
+process succeeds about 80% of the time for us):
+
+<div class="animation" data-anim="findMatch1">
+<button class="btn btn-secondary step-btn" style="display: none;">Step</button>
+<div class="anim-with-hash-table">
+<table class="hash-table">
+<tr><th>i</th><th>T[i]</th><th>i</th><th>T[i]</th></tr>
+</table>
+<table class="main-table">
+<tr><th>Book title</th><th>Hash 1</th><th>Hash 2</th><th>Hash 3</th></tr>
+</table>
+</div>
+</div>
 
 
 
