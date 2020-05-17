@@ -48,6 +48,11 @@ in order to have a good chance of avoiding collisions, but this is not true. (In
 Try it out!)
 
 <div class="animation" data-anim="birthdayHashCollision">
+<div>
+<button class="btn btn-info desc-btn">Description (click to show)</button>
+<div class="description">The simulation produces random hashes for every book and checks for duplicates. They're more frequent than you might think!</div>
+</div>
+<div class="success">It worked this time, but usually there is a collision</div>
 <table>
 <tr><th>Book title</th><th>Hash</th></tr>
 </table>
@@ -72,6 +77,13 @@ Here, we use $$k=2$$ hash choices for each element, and we pick one of the two h
 with a unique hash. This works over 90% of the time in our simulation!
 
 <div class="animation" data-anim="twoChoicesHash">
+<div>
+<button class="btn btn-info desc-btn">Description (click to show)</button>
+<div class="description">The simulation produces two random hashes for each book. It then goes back and tries to choose a "critical hash"
+for each one such that no two books have the same critical hash</div>
+</div>
+<div class="success">Success!</div>
+<div class="failure">Error: could not choose a unique hash for each book</div>
 <table>
 <tr><th>Book title</th><th>Hash 1</th><th>Hash 2</th></tr>
 </table>
@@ -115,12 +127,24 @@ process succeeds about 80% of the time for us):
 
 <div class="animation" data-anim="findMatch1">
 <button class="btn btn-secondary step-btn" style="display: none;">Step</button>
+<div>
+<button class="btn btn-info desc-btn">Description (click to show)</button>
+<div class="description">
+The simulation generates three random hashes for each book and a random "value" (i.e. which database it's in) in $[0, R)$ where $R=5$.
+It then tries to choose a critical hash for each book,
+and only modifies the critical hash in the table so that the sum of the indices of the critical hash $\pmod R$ equals the value the book is
+assigned (indicated by $v$). Once it modifies the table value at the critical hash, all of the indices in the table become "frozen," never
+to be chosen as a critical hash again. By the end, you should see that you can look up the value of any book just by adding up the values in
+the table corresponding to its hashes mod $R$.</div>
+</div>
+<div class="success">Success!</div>
+<div class="failure">Error: could not assign a critical match to every book</div>
 <div class="anim-with-hash-table">
 <table class="hash-table">
 <tr><th>i</th><th>T[i]</th><th>i</th><th>T[i]</th></tr>
 </table>
 <table class="main-table">
-<tr><th>Book title</th><th>Hash 1</th><th>Hash 2</th><th>Hash 3</th></tr>
+<tr><th>Book title</th><th>$h_1$</th><th>$h_2$</th><th>$h_3$</th></tr>
 </table>
 </div>
 </div>

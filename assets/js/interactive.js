@@ -5,6 +5,7 @@ var determineIfWorks = function(hashChoices) {
   let n = hashChoices.length;
   let hashValues = Array(m).fill(null);
   for (let i = 0; i < n; ++i) {
+    let savedResult = result.slice();
     let choices = hashChoices[i];
     // console.log("Trying to insert element", i, "with choices", choices);
     if (hashValues[choices[0]] === null) {
@@ -33,7 +34,7 @@ var determineIfWorks = function(hashChoices) {
         if (found) break;
         //else console.log("Failed");
       }
-      if (!found) { result.pop(); return result };
+      if (!found) { return savedResult };
     }
     // console.log("Result", result, "hashValues", hashValues);
   }
@@ -63,6 +64,14 @@ var doFindMatch = function(hashChoices) {
     }
   }
   return result.reverse();
+};
+
+function generateHashes() {  // generate 3 distinct hashes; distinct bc I'm too lazy to make algo's work with repeats
+  const k = 3;
+  let h = Array(k).fill().map(() => Math.floor(Math.random() * m));
+  if (h[1] === h[0]) h[1] = (h[1] + 1) % m;
+  while (h[2] === h[0] || h[2] === h[1]) h[2] = (h[2] + 1) % m;
+  return h;
 };
 
 function shuffle(array) {
@@ -106,6 +115,8 @@ var wrap = function(fn) {
     ++interrupt;
     let savedInterrupt = interrupt;
     $(this).find(".book-elem").remove();
+    this.parents(".animation").find(".success").hide();
+    this.parents(".animation").find(".failure").hide();
     await fn.call(this, {get interrupt() { return interrupt > savedInterrupt; }});
   };
 };
@@ -114,20 +125,22 @@ var animations = {
 
 birthdayHashCollision: wrap(async function(o) {
   let hashes = [];
+  let collision = false;
   for (let i = 0; i < n && !o.interrupt; ++i) {
     let hash = Math.floor(Math.random() * m);
     let row = $(`<tr class="book-elem"><td>${books[i]}</td><td>${hash}</td></tr>`);
     await row.appendTo(this).hide().fadeIn();
-    if (hashes[hash] != null) { row.addClass("error"); row.find("td:eq(0)").text(`${books[i]} (conflicts with ${books[hashes[hash]]})`); break; }
+    if (hashes[hash] != null) { row.addClass("error"); row.find("td:eq(0)").text(`${books[i]} (conflicts with ${books[hashes[hash]]})`); collision = true; break; }
     else hashes[hash] = i;
     await sleep(300);
   }
+  if (!collision) this.parents(".animation").find(".success").show();
 }),
 
 twoChoicesHash: wrap(async function(o) {
   let hashes = [];
   let rows = [];
-  for (let i = 0; i < n; ++i) hashes.push([Math.floor(Math.random() * m), Math.floor(Math.random() * m)]);
+  for (let i = 0; i < n; ++i) hashes.push(generateHashes().slice(0, 2));
   for (let i = 0; i < n && !o.interrupt; ++i) {
     let row = $(`<tr class="book-elem"><td>${books[i]}</td><td>${hashes[i][0]}</td><td>${hashes[i][1]}</td></tr>`);
     row.appendTo(this).hide().fadeIn();
@@ -139,7 +152,8 @@ twoChoicesHash: wrap(async function(o) {
     rows[i].find("td").eq(1 + solution[i]).addClass("picked");
     await sleep(300);
   }
-  if (solution.length < n) rows[solution.length].addClass("error");
+  if (solution.length < n) { rows[solution.length].addClass("error"); this.parents(".animation").find(".failure").show(); }
+  else this.parents(".animation").find(".success").show();
 }),
 
 findMatch1: wrap(async function(o) {
@@ -152,13 +166,7 @@ findMatch1: wrap(async function(o) {
     $(`<tr class="hash-row"><td>${i}</td><td>0</td><td>${i+m/2}</td><td>0</td></tr>`).appendTo(hashTable);
   }
   let hashes = [];
-  let generateHashes = (k) => {
-    let h = Array(k).fill().map(() => Math.floor(Math.random() * m));
-    if (h[1] === h[0]) h[1] = (h[1] + 1) % m;
-    while (h[2] === h[0] || h[2] === h[1]) h[2] = (h[2] + 1) % m;
-    return h;
-  };
-  for (let i = 0; i < n; ++i) hashes.push(generateHashes(3));
+  for (let i = 0; i < n; ++i) hashes.push(generateHashes());
   for (let i = 0; i < n; ++i) databases.push(Math.floor(Math.random() * R));
   for (let i = 0; i < n; ++i) {
     $(`<tr class="book-elem"><td>${books[i]} (v=${databases[i]})</td><td>${hashes[i].join("</td><td>")}</td></tr>`).appendTo(mainTable);
@@ -179,6 +187,8 @@ findMatch1: wrap(async function(o) {
     getTDsFromIndex(hashes[elem.i][elem.c]).addClass("critical").eq(1).text(newVal.toString());
     await waitForClick(btnStep);
   }
+  if (result.length === n) this.parents(".animation").find(".success").show();
+  else this.parents(".animation").find(".failure").show();
 }),
 
 };
@@ -192,4 +202,5 @@ $(document).ready(function() {
     $(this).find(".run-btn").click(() => stepBtn.show()).click(animations[$(this).data("anim")].bind(table));
     $(this).find(".hide-btn").click(() => { table.toggle(); stepBtn.hide(); });
   });
+  $(".animation .desc-btn").click(function() { $(this).next(".description").slideToggle(); });
 });

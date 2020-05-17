@@ -46,7 +46,7 @@ span.footnote {
 }
 
 .hash-table {
-    margin: 0px 10px;
+    margin: 0px 10px 0px 0px;
     max-width: fit-content;
 }
 
@@ -70,5 +70,27 @@ span.footnote {
 }
 
 .anim-with-hash-table .main-table {
-    flex-grow: 1;
+  flex-grow: 1;
 }
+
+.success, .failure {
+  display: none;
+  font-style: italic;
+}
+
+.success {
+  color: green;
+}
+
+.failure {
+  color: red;
+}
+
+.desc-btn {
+  cursor: pointer;
+}
+
+.description {
+    display: none;
+}
+
