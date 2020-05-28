@@ -357,8 +357,8 @@ satisfy the above property for large enough $$n$$.
 
 Say we want a false positive rate of at most $$0<\epsilon{}<1$$. That is, books not in our
 collection are assigned a database with probability $$\epsilon{}$$. Our false positive
-rate was $$\frac{k}{2^q}$$, so it is enough to choose $$q = \ceil{\log_2
-\frac{k}{\epsilon{}}} = O(\log \epsilon^{-1})$$.
+rate was $$\frac{k}{2^q}$$, so it is enough to choose $$q = \left\lceil\log_2
+\frac{k}{\epsilon{}}\right\rceil = O(\log \epsilon^{-1})$$.
 
 TODO: Write out the binomial coefficients showing that the expected number of
 vertices that can be removed at each stage of the critical hash algorithm
