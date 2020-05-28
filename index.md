@@ -37,7 +37,7 @@ $$\{0, 1\}^\infty$$ is an infinite stream<span class="footnote">In practice, we
 will need only finitely many (e.g. ~128 bits).</span> of random<span
 class="footnote">In reality, they are pseudorandom.</span> bits. Each
 book is in a database numbered in $$[0,R)$$. We
-will keep a table `T` with $$m$$ rows. Each
+will keep a table $$T$$ with $$m$$ rows. Each
 entry in the table is a $$q$$-bit value--for example $$q=32$$ encodes the values
 in the table as standard integers. Here $$m$$ and $$q$$ are tunable parameters,
 while $$n$$ and $$R$$ are fixed user specifications.
@@ -131,7 +131,7 @@ the critical hash: all we need to do is add up values in each hash location
 associated to $$\texttt{elem}$$.
 
 How do we use the critical hash? The idea is this: every time we add an element
-`elem` to the table, we will only change *either* $$T[h_0(\texttt{elem})]$$ *or* $$T[h_1(\texttt{elem})]$$
+$$\texttt{elem}$$ to the table, we will only change *either* $$T[h_0(\texttt{elem})]$$ *or* $$T[h_1(\texttt{elem})]$$
 such that $$T[h_0(\texttt{elem})] + T[h_1(\texttt{elem})] = \texttt{val}$$, where $$\texttt{val}$$ is the value we want to
 set. Which one we change is precisely the critical hash. Note that this is
 always possible: if we are changing $$h_0$$, then we can set
@@ -139,7 +139,7 @@ $$T[h_0(\texttt{elem})] = \texttt{val} - T[h_1(\texttt{elem})]$$ modulo $$m$$.
 
 If you think about this, you will realize that the property that we want
 critical hashes to satisfy needs to be a little stronger. Once we process an
-element `elem`, the table values will be set such that
+element $$\texttt{elem}$$, the table values will be set such that
 $$T[h_0(\texttt{elem})] + T[h_1(\texttt{elem})] = \texttt{val}$$. If, while processing another element, we later
 change either $$T[h_0(\texttt{elem})]$$ or $$T[h_1(\texttt{elem})]$$, everything will break and we will
 no longer be able to recover $$\texttt{val}$$ by adding up what is in the hash locations of
