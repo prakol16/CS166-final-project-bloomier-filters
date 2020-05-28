@@ -182,30 +182,37 @@ need to change that one value in the table to be able to map this book to its
 database! Because the critical hash is always a location that has not been seen
 before, changing this value does not affect any other book.
 
-## More Features
+## Detecting Non-Books
 
 Once we have chosen critical hashes, we have a filter that can effectively match
 book to database: hash the book to its $$k$$ hash locations and return the sum
-of the values in those locations. What happens when we query a book that is not
-in any database? Well, we hash the book to its $$k$$ hash locations and...
-return a random database. To fix this, we use our hash function to generate for
-each book not only a set of $$k$$ hash locations in the table but also a *mask
-value* `M` that is a random integer. Instead of adjusting the critical hash for a
-given element $$e_j$$ so that `T[h1(elem)] + ... + T[hk(elem)] = val`, we adjust
-the critical hash so that `M_j + T[h1(e_j)] + ... + T[hk(e_j)] = val`. This
-way, when we look up a book, we can check if `M_j + T[h1(e_j)] + ... +
-T[hk(e_j)]` could possibly be a database value. For example, even if we have one million
-databases and we encode our integers as 32-bit values, then because the mask
-value `M` is random, `M + T[h1(elem)] + ... + T[hk(elem)]` will be at most one million
-only with probability $$\frac{10^6}{2^{32}}\approx 0.02\%$$.
+of the values in those locations. What happens when we query our central
+database for Hamlet? It is definitely not 20th-century literature, and we
+wouldn't want to say it is in some database. We hash the book to its $$k$$ hash
+locations and... return a random database. We need an extra layer of randomness
+to detect when things are not actually in our database. In addition to $$k$$
+hash locations, we ask that our hash function also generate a random integer
+*mask value* `M` for each book. Instead of adjusting the critical hash
+for a given element $$e_j$$ so that `T[h1(elem)] + ... + T[hk(elem)] = val`, we
+adjust the critical hash so that `M_j + T[h1(e_j)] + ... + T[hk(e_j)] = val`.
+This way, when we look up a book, we can check if `M_j + T[h1(e_j)] + ... +
+T[hk(e_j)]` could possibly be a database value. For example, even if we have one
+million databases and we encode our integers as 32-bit values, then because the
+mask value `M` is random, `M + T[h1(elem)] + ... + T[hk(elem)]` will be at most
+one million only with probability $$\frac{10^6}{2^{32}}\approx 0.02\%$$.
 
-Our filter now maps books to databases and identifies non-books with high
-probability. We assumed that our databases are numbered $$1,\ldots,n$$, where
+## Moving Books Around
+
+As we click through our collection, we want to reorganize our books. What if we
+wanted to move books between databases and have the filter reflect that?
+
+We have been assuming that our databases are numbered $$1,\ldots,n$$, where
 $$n$$ is the number of databases (above we took $$n=10^6$$). What if we didn't
-want to number the databases in order? What if we wanted to move
-books between databases and have the filter reflect that? With a little memory
-(linear in the number of databases), this is easy! Instead of thinking of the
-numbers $$1,\ldots,n$$ as being the databases themselves, think of them as
-indices into an auxiliary array. In this auxiliary array, we can store whatever
-values we want. To update the value associated to an element, just lookup the
-index of the element and update the corresponding value in the auxiliary array.
+want to number the databases in order?
+
+With a little memory (linear in the number of databases), we can solve both of
+these problems! Instead of thinking of the numbers $$1,\ldots,n$$ as being the
+databases themselves, think of them as indices into an auxiliary array. In this
+auxiliary array, we can store whatever values we want. To update the value
+associated to an element, just lookup the index of the element and update the
+corresponding value in the auxiliary array.
