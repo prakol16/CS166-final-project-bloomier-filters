@@ -32,21 +32,25 @@ This generalization of Bloom filters is called the *Bloomier filter*.
 
 ## The Birthday Paradox, and Hash Collisions
 
-Why is a naïve hash table inefficient? To review, assume that we
-have some hash function $$h : \mathcal{B}\mapsto \{0, 1\}^\infty$$, where $$\mathcal{B}$$ is the set of possible book
-titles and $$\{0, 1\}^\infty$$ is an infinite stream<span class="footnote">In practice, we will need only finitely many (e.g. ~128 bits)</span>
-of random<span class="footnote">In reality, they are pseudorandom of course</span> bits.
-With a hash table, we create a table of size $$m$$ (here, $$m$$ is
-some tuneable parameter), and add each book-database pair $$(B, r)$$ to the list stored at `table[hash(B)]`,
-where `hash(B)` uses $$\log_2 m$$ bits from the hash function $$h$$ to generate an
-integer in the range $$[0, m)$$.
+Why is a naïve hash table inefficient? To review, assume that we have some hash
+function $$h : \mathcal{B}\mapsto \{0, 1\}^\infty$$, where $$\mathcal{B}$$ is
+the set of possible book titles and $$\{0, 1\}^\infty$$ is an infinite
+stream<span class="footnote">In practice, we will need only finitely many (e.g.
+~128 bits)</span> of random<span class="footnote">In reality, they are
+pseudorandom of course</span> bits. With a hash table, we create a table of size
+$$m$$ (here, $$m$$ is some tuneable parameter), and add each book-database pair
+$$(B, r)$$ to the list stored at `table[hash(B)]`, where `hash(B)` uses $$\log_2
+m$$ bits from the hash function $$h$$ to generate an integer in the range $$[0,
+m)$$.
 
-This works very well for most applications, and is a simple, efficient approach. However, we always end up needing
-a collision resolution mechanism, and this makes the memory footprint of our table rather large.
-For the sake of simplicity, suppose we are storing $$n = \vert \mathcal{B}\vert=10$$ books
-into $$R=5$$ databases with a table size of $$m=20$$. Naïvely, you might think you only need $$m = O(n)$$ slots in the table
-in order to have a good chance of avoiding collisions, but this is not true. (In our simulation, we get no collisions only 6% of the time!
-Try it out!)
+This works very well for most applications, and is a simple, efficient approach.
+However, we always end up needing a collision resolution mechanism, and this
+makes the memory footprint of our table rather large. For the sake of
+simplicity, suppose we are storing $$n = \vert \mathcal{B}\vert=10$$ books into
+$$R=5$$ databases with a table size of $$m=20$$. Naïvely, you might think you
+only need $$m = O(n)$$ slots in the table in order to have a good chance of
+avoiding collisions, but this is not true. (In our simulation, we get no
+collisions only 6% of the time! Try it out!)
 
 <div class="animation" data-anim="birthdayHashCollision">
 <div>
@@ -139,15 +143,15 @@ so that they will never be written to again.
 Then, the **critical hash** $$h_c$$ of an element $$e_j$$ is one of $$h_0(e_j),
 h_1(e_j),\ldots,h_k(e_j)$$ such that when we are processing $$e_j$$, the table
 entry at $$h_c$$ is *not* frozen. This is a stronger property than what we had
-before! The critical hash for \(e_j\) is not just different from all the
+before! The critical hash for $$e_j$$ is not just different from all the
 critical hashes of previous elements. We actually want $$h_c$$ to be different
 from *all* the hashes of all the elements we have already processed.
 
 This seems like a pretty strong property, but one thing that makes it easier is
 that we can process the elements in any order we want. In order to convince you
 that it is actually plausible to choose critical hashes for each element despite
-such restrictive conditions, here is another animation, with \(k=3\) instead of
-\(k=2\) (this process succeeds about 80% of the time for us):
+such restrictive conditions, here is another animation, with $$k=3$$ instead of
+$$k=2$$ (this process succeeds about 80% of the time for us):
 
 <div class="animation" data-anim="findMatch1">
 <button class="btn btn-secondary step-btn" style="display: none;">Step</button>
@@ -181,27 +185,27 @@ before, changing this value does not affect any other book.
 ## More Features
 
 Once we have chosen critical hashes, we have a filter that can effectively match
-book to database: hash the book to its \(k\) hash locations and return the sum
+book to database: hash the book to its $$k$$ hash locations and return the sum
 of the values in those locations. What happens when we query a book that is not
-in any database? Well, we hash the book to its \(k\) hash locations and...
+in any database? Well, we hash the book to its $$k$$ hash locations and...
 return a random database. To fix this, we use our hash function to generate for
-each book not only a set of \(k\) hash locations in the table but also a *mask
+each book not only a set of $$k$$ hash locations in the table but also a *mask
 value* `M` that is a random integer. Instead of adjusting the critical hash for a
-given element \(e_j\) so that `T[h1(elem)] + ... + T[hk(elem)] = val`, we adjust
+given element $$e_j$$ so that `T[h1(elem)] + ... + T[hk(elem)] = val`, we adjust
 the critical hash so that `M_j + T[h1(e_j)] + ... + T[hk(e_j)] = val`. This
 way, when we look up a book, we can check if `M_j + T[h1(e_j)] + ... +
 T[hk(e_j)]` could possibly be a database value. For example, even if we have one million
 databases and we encode our integers as 32-bit values, then because the mask
 value `M` is random, `M + T[h1(elem)] + ... + T[hk(elem)]` will be at most one million
-only with probability \(\frac{10^6}{2^{32}}\approx 0.02\%\).
+only with probability $$\frac{10^6}{2^{32}}\approx 0.02\%$$.
 
 Our filter now maps books to databases and identifies non-books with high
-probability. We assumed that our databases are numbered \(1,\ldots,n\), where
-\(n\) is the number of databases (above we took \(n=10^6\)). What if we didn't
+probability. We assumed that our databases are numbered $$1,\ldots,n$$, where
+$$n$$ is the number of databases (above we took $$n=10^6$$). What if we didn't
 want to number the databases in order? What if we wanted to move
 books between databases and have the filter reflect that? With a little memory
 (linear in the number of databases), this is easy! Instead of thinking of the
-numbers \(1,\ldots,n\) as being the databases themselves, think of them as
+numbers $$1,\ldots,n$$ as being the databases themselves, think of them as
 indices into an auxiliary array. In this auxiliary array, we can store whatever
 values we want. To update the value associated to an element, just lookup the
 index of the element and update the corresponding value in the auxiliary array.
