@@ -18,7 +18,11 @@ request. The mapping of books to database needs to run in constant time, but it
 also needs to be able to reject books that aren't in any database. Ideally, it
 needs to be compacted into as little memory as possible. If the title of a book
 is around 30 bytes long, a naïve hash table might require 30 bytes per entry!
-Surely we can do better!
+Surely we can do better! For example, if the books were conveniently titled $$0, 1, \dots n-1$$,
+then we could easily get away with only $$\log R$$ bits per book using a simple table. Sadly,
+the great authors of the 20th century did not have the foresight to title their books
+in such a logical manner, but perhaps with some clever hashing techniques, we might approach
+this lower bound.
 
 In the case $$R=1$$, (there is only one secondary database), the central
 database only needs to accept or reject books, depending on whether they are in
@@ -85,7 +89,8 @@ which already requires 8 bytes per entry on a 64-bit system. Moreover, every
 element of the list would have to store either the title itself (30 bytes!), or
 an independent hash of its title, which is another $$\log m$$ bits, and $$\log
 R$$ bits to indicate which database the book is in. In total, we might need
-12-16 bytes per table entry, which is quite wasteful.
+12-16 bytes per table entry, which is quite a long way from the $$\log R$$ bits
+per entry we are trying to approach.
 
 ## Just add some choice!
 
@@ -93,7 +98,8 @@ Ultimately, the insight that Bloomier filters provide is that we can actually
 map each element to a unique hash value -- if we provide just a little choice.
 Pick $$k=2$$ hash locations for each element, and for each element, try to pick
 one of its two hashes such that every element is associated with a unique hash.
-This works over 90% of the time in our simulation!
+This works over 90% of the time in our simulation!<span class="footnote">In fact,
+the fact that this works often is what cuckoo hashing is based off of!</span>
 
 <div class="animation" data-anim="twoChoicesHash">
 <div>
@@ -222,7 +228,9 @@ have one million databases ($$R=10^6$$) and we encode the values in our table as
 32-bit integers ($$q=32$$), then because the mask value $$M$$ is random,
 $$M_{\texttt{elem}} + T[h_0(\texttt{elem})] + ... + T[h_{k-1}(\texttt{elem})] = \texttt{val}$$ is also random, so it will be at most one
 million only with probability $$\frac{10^6}{2^{32}}\approx 0.02\%$$. In general, our
-filter gives false positives with probability $$\frac{R}{2^q}$$.
+filter gives false positives with probability $$\frac{R}{2^q}$$. In particular,
+if we want the false probability rate to be $$\epsilon$$, then we need $$q=\log R+\log\epsilon^{-1}$$,
+so the memory footprint of the table is $$mq=m\left(\log R+\log\epsilon^{-1}\right)$$ bits.
 
 ## Moving Books Around
 
@@ -238,9 +246,17 @@ if we didn't want to number the databases in order?
 
 With a little thinking, we can solve both of these problems, and also improve
 our false positive rate! Instead of thinking
-of the table values as encoding the databases themselves, let us encode indices
-into an auxiliary table where we actually store the database associated to a
-book. Remember the critical hash? Each element has a unique critical hash, so we
+of the table values as encoding the databases themselves, let them encode
+indices in an auxiliary table where we actually store the database associated to a
+book. In other words, the main table $$T$$ tells us which index of the auxillary
+table to check to find the database that the book is stored in.
+Then, if we ever want to move the book to a different database, we can just
+change the value in the auxillary table. Since we still want the auxillary table
+to take up relatively little space, we want to avoid needing a collision resolution
+mechanism, so we'd need every book to be associated with a unique index in the auxillary table.
+
+But this is a problem we've already solved!
+Remember the critical hash? Each element has a unique critical hash, so we
 can use this as an index into an auxiliary table. Before, we identified the
 critical hash of an element with the *output* of the hash function---a value in
 $$[0,m)$$. Because our hash function generates $$k$$ hash locations for each
@@ -249,7 +265,7 @@ $$[0,k)$$. When building the filter, for each element we can adjust the critical
 hash so that $$M_{\texttt{elem}} + T[h_0(\texttt{elem})] + ... + T[h_{k-1}(\texttt{elem})] = \texttt{val}$$ is not the database of the
 book modulo $$R$$, but the value $$c\in [0,k)$$ modulo $$k$$ such that $$h_c$$
 is the critical hash! Given this $$c$$, we can use the value $$h_c(\texttt{elem})$$, which
-is unique for each element $$e_j$$ as an index into an auxiliary table.
+is unique for each element as an index into an auxiliary table.
 
 Isn't that amazing? We just used $$k$$ hash values to encode which of the $$k$$
 hash values is the critical hash, then interpreted the critical hash as an index
@@ -266,9 +282,15 @@ we knew a book couldn't be in our collection if it claimed to be in, say
 database 300 when we only have 100 databases. Now, we know we don't own a book
 if the filter suggests that its critical hash is, say, the 100th hash when we
 only generate 5 hashes. Our false positive rate is therefore $$\frac{k}{2^q}$$.
-This is a big improvement, because it would be practical to have thousands or
-even millions of databases, but not practical to have a hash function that
-generates that many hashes for each element.
+This is a big improvement, because we might have thousands or 
+even millions of databases, but in general, we usually use $$k\approx 3$$. On the
+other hand, aren't we using more memory with an additional table? Yes, but because our false positive rate
+is better, we can afford to make $$q$$ smaller to make up for it.
+If we want the false probability rate to be $$\epsilon$$, we can set $$q=\log k + \log\epsilon^{-1}$$.
+Including the $$m\log R$$ bits of space for the auxillary table,
+our total memory usage will be $$m\left(\log k + \log R + \log\epsilon^{-1}\right)$$.
+Compared to the old value of $$m\left(\log R+\log\epsilon^{-1}\right)$$, this is only $$m\log k$$
+extra bits, which is not too bad.
 
 ## Finding Critical Hashes
 
