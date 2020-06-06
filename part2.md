@@ -8,7 +8,7 @@ mathjax: true
 
 So far, we've been visualizing our hash functions and elements as a bipartite graph, with
 $$n$$ books on the left and $$m$$ hashes on the right. This is fine, but to bring us more
-in line with the terminology of <a href="https://arxiv.org/pdf/1907.04749.pdf">this paper</a>
+in line with the terminology of [this paper](https://arxiv.org/pdf/1907.04749.pdf)
 by Dietzfelbinger et al., we will transition to the terminology of "hypergraphs." A hypergraph
 is simply a generalization of a graph where edges can connect more than two vertices. In other words,
 rather than thinking of edges as lines between vertices, think of them as blobs that can include
@@ -44,11 +44,33 @@ a single vertex in the edge such that no two edges are assigned to the same vert
 *orientation*. Just as the property that every book's critical hash is unique is necessary but not sufficient
 for the Bloomier filter construction to succeed, orientability is necessary but not sufficient for peelability.
 
-A few more terms: the ratio $$n/m$$ (the number of edges to vertices, or the ratio of the number of
+A couple more terms: the ratio $$n/m$$ (the number of edges to vertices, or the ratio of the number of
 books to the table size) is at most $$1$$ in any orientable hypergraph, and is called the *edge density*.
 The reverse ratio, $$m/n$$, we'll call the *overhead* because it is the ratio of the table size to the number
 of books we are actually storing. A concise statement of our goal is to find a construction of a hypergraph
 that minimizes the overhead while maintaining a high probability of being peelable.
+
+# A 0-1 Law for Random Graphs
+
+In 1963, Erdős and Rényi published a famous result that essentially showed that there was only one random graph.
+More specifically, if we create a random graph with countably infinitely many vertices
+such that any two vertices have a fixed, independent chance $$0 \lt p \lt 1$$ of being connected by an edge, then
+almost surely the graph is isomorphic to the [Rado graph](https://en.wikipedia.org/wiki/Rado_graph). This is very
+surprising, but one implication is that if we have some property that can be true or false of a graph, then a sufficiently
+large random graph satisfies that property with probability arbitrarily close to $$1$$ or arbitrarily close to $$0$$
+(essentially, depending on whether the Rado graph satisfies the property or not).
+
+A similar 0-1 law applies for random hypergraphs of fixed edge density.
+For example, consider a "basic" random $$k$$-uniform hypergraph,
+where each edge consists of $$k$$ uniformly and independently selected distinct random vertices. As the overhead increases,
+it becomes more and more likely that the graph is peelable, but as the overhead decreases to $$1$$, the probability
+that the graph is peelable goes to $$0$$. We showed in part 1 that $$m$$ only has to be linear in $$n$$ for the Bloomier
+filter construction to succeed with high enough probability, so when the overhead is somewhere between $$1$$ and some constant,
+there is a transition from low to high probability. We can plot the probability that the graph is peelable against the overhead $$m/n$$ for various $$n$$. 
+
+TODO: Add graph (plotly?)
+
+
 
 
 

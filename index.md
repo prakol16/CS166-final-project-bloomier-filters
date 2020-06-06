@@ -375,7 +375,7 @@ would be unlikely that one of these right vertices has just one neighbour in
 $$V$$. This corresponds to there being many hash collisions among a given set of
 elements. Because each left vertex has $$k$$ neighbours, a set $$V$$ of left
 vertices can have at most $$k\abs{V}$$ neighbours. In general, we might quantify
-how much a graph expands by a constant $$0\le \alpha{}<1$$, and ask that each set $$V$$
+how much a graph expands by a constant $$0\le \alpha{}\lt 1$$, and ask that each set $$V$$
 of left vertices have more than $$\alpha{}k\abs{V}$$ neighbours on the right, a
 proportion of the maximum possible governed by $$\alpha{}$$.
 
@@ -398,7 +398,7 @@ satisfy the above property for large enough $$n$$ with $$m=O(n)$$.
 
 ## Tuning Our Filter
 
-Say we want a false positive rate of at most $$0<\epsilon{}<1$$. That is, books not in our
+Say we want a false positive rate of at most $$0\lt\epsilon{}\lt1$$. That is, books not in our
 collection are assigned a database with probability $$\epsilon{}$$. Our false positive
 rate was $$\frac{k}{2^q}$$, so it is enough to choose $$q = \left\lceil\log_2
 \frac{k}{\epsilon{}}\right\rceil = O(\log \epsilon^{-1})$$.
@@ -477,6 +477,6 @@ bound that at least $$\log\epsilon^{-1}$$ bits are required even for an ordinary
 Therefore, we have only a 23% "overhead" compared to the theoretical optimal.
 
 But can we actually do better, by reducing this 23% overhead to
-something even smaller? As Keith says so often, if the answer was no, we probably wouldn't be asking, so continue over to <a href="/part2">part two</a> to see how low
+something even smaller? As Keith says so often, if the answer was no, we probably wouldn't be asking, so continue over to [part 2](/part2) to see how low
 we can actually get this overhead down to.
 
