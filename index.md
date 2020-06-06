@@ -470,7 +470,13 @@ As a last consideration, in order to truly minimize our memory usage, we have to
 while still allowing the construction to succeed in a reasonable time? While we proved that $$m=2n$$ is enough (and this is good enough for the asymptotic bound),
 a closer theoretical analysis or emperical observations will show that $$m=1.23n$$ is about the minimum you can get away with. Thus, with a false positive rate of $$\epsilon$$,
 we need $$1.23\left(\log R + \log\epsilon^{-1}\right)$$ bits per element for an immutable filter. Compare this to our wish of $$\log R$$ bits per element when we were
-wishing that all the books were simply titled $$0, 1, \dots n-1$$, and I'd say we came surprisingly close! But can we actually do better, by reducing this 23% "overhead" to
-something even smaller? As Keith says so often, if the answer was no, we probably wouldn't be asking, so continue over to part two to see how low
+wishing that all the books were simply titled $$0, 1, \dots n-1$$, and I'd say we came surprisingly close! In fact, a theoretical lower bound is that we need at least
+$$\log R + \log\epsilon^{-1}$$ bits per element. We won't do a formal proof here, but roughly, $$\log R$$ comes from the fact that we need to store the database
+index of each book, and since there are $$R$$ databases, this requires $$\log R$$ bits, and the $$\log\epsilon^{-1}$$ comes from the same place as the well-known
+bound that at least $$\log\epsilon^{-1}$$ bits are required even for an ordinary bloom filter to answer set membership queries with a false probability rate of $$\epsilon$$.
+Therefore, we have only a 23% "overhead" compared to the theoretical optimal.
+
+But can we actually do better, by reducing this 23% overhead to
+something even smaller? As Keith says so often, if the answer was no, we probably wouldn't be asking, so continue over to <a href="/part2">part two</a> to see how low
 we can actually get this overhead down to.
 
