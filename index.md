@@ -306,32 +306,49 @@ the corresponding position in the table would be frozen, and we could not edit
 it without risking messing up the work we have done for previous elements.
 
 We can process the elements in whatever order we want, so one place to start is
-to find the locations that only one element hashes to. The one element that
-hashes to this location has a critical hash! One caveat is that one element
+to find the locations that only one element hashes to. Let's call these
+locations **easy hashes**, and the corresponding (single) element which hashes to it
+the **easy element**. We say easy because it is easy to assign them a critical hash --
+you can't go wrong by assigning the critical hash of an easy element to its easy hash.
+
+{% include /imgs/easy_hashes.svg %}
+
+In this example, each of 4 books is connected to $$k=2$$ hashes, which is shown as a graph.
+The red elements, namely $$2$$ and $$5$$, are easy hashes, since only one element hashes to each of them,
+and Invisible Man and The Great Gatsby are the corresponding easy elements. Therefore,
+we should assign the critical hash of The Great Gatsby to be $$5$$ and the critical
+hash of Invisible Man to be $$2$$.<span class="footnote">One caveat is that one element
 might hash to multiple locations that it and it alone hashes to. In this case,
-we will break ties by choosing the critical hash of $$\texttt{elem}$$ to be
-$$h_c$$ for the smallest value $$c$$ in $$[0,k)$$ such that only
-$$\texttt{elem}$$ hashes onto $$h_c(\texttt{elem})$$. Because no other element
-hashes to this location, we can change it without affecting any other element.
-However, freezing all of this element's hash locations could affect other
-elements, so we should process this element and freeze its hash locations at the
-end, once every other element that might have a critical hash among one of those
-locations has been processed.. We can put all the elements that already have a
-critical hash at the end of a queue.
+we can break ties arbitrarily e.g. by smallest hash value.</span>
 
-Now we are left with a smaller set of elements. If we can find a critical hash
+Ordinarily, it is easy to find critical hashes for elements that are processed early,
+since not many entries are frozen, and it is difficult near the end. However, assigning
+the critical hash to an easy element is always easy, so there is no point to processing it early.
+Indeed, if we processed it early, we would unnecessarily freeze some table entries that might
+be useful later on, so we only stand to benefit if we process the easy elements at the very end.
+Let's save these easy elements and delete them from the graph for now. If we
+delete Invisible Man and The Great Gatsby from the example above, we get
+
+{% include /imgs/easy_hashes_2.svg %}
+
+Now we are left with a smaller set of elements, and some of the hashes that weren't easy
+hashes before now are. If we can find a critical hash
 for each of these, we are done, because the critical hashes of the elements that
-we have already found are unique, so they can be processed at the end. This is
-recursion! We can run the same process on these remaining elements: find the
-elements which hash to a location that no other element hashes to, make the
-smallest (in the order of the hash functions $$h_0,\ldots,h_{k-1}$$) such
-hash the critical hash, and move these elements to the end.
+we had found earlier were unique, so they can always be processed at the end regardless
+of which table entries are frozen.
+This is recursion! We can run the same process on these remaining elements: find the easy
+elements and their easy hashes, push them onto a stack which keeps track of the order
+that the elements will be processed in (where the top of the stack is the element that will
+be processed first), delete the easy elements, and repeat.
 
-The only problem is that this might not work. In that case, we rehash and start
+The only problem is that this might not work -- we might hit a situation where there are no easy
+hashes. In that case, we rehash and start
 over. If the probability that we can successfully assign critical hashes given a
 randomly chosen hash function is $$p$$, then the number of times we have to run
 the algorithm before succeeding is given by a geometric distribution. The
-expected number of runs of the algorithm is $$\frac{1}{p}$$.
+expected number of runs of the algorithm is $$\frac{1}{p}$$. Our goal, then, is to show that
+$$p$$ is at least some constant as $$n\rightarrow\infty$$, so that we only have to
+run the algorithm an expected $$O(1)$$ times.
 
 ## Bipartite Graphs and Critical Hashes
 
@@ -362,13 +379,17 @@ how much a graph expands by a constant $$0\le \alpha{}<1$$, and ask that each se
 of left vertices have more than $$\alpha{}k\abs{V}$$ neighbours on the right, a
 proportion of the maximum possible governed by $$\alpha{}$$.
 
-It turns out to be enough that if $$\alpha{}=\frac{1}{2}$$, then our algorithm will
-succeed. To see why, fix a set of left vertices $$V$$. We suppose that
-$$\abs{V}$$ has more than $$\alpha{}k\abs{V} = \frac{1}{2}k\abs{V}$$ neighbours.
-If no neighbour of $$V$$ has a unique neighbour in $$V$$, then each
-neighbour of $$V$$ has degree at least 2. Thus there are more than $$k\abs{V}$$
-edges between vertices in $$V$$ and their neighbours on the right, but because
-each vertex in $$V$$ has exactly $$k$$ neighbours, this is not possible.
+What $$\alpha$$ should we pick?
+Suppose we have deleted some books and our algorithm is currently working on the
+set of vertices $$V$$, a subset of all the left vertices. We want to find an easy
+hash, which corresponds to one of the neighbors of $$V$$ having degree exactly $$1$$.
+Since every element has $$k$$ hashes, there are $$k|V|$$ total edges between $$V$$ and
+its neighborhood. Since there are more than $$\alpha k|V|$$ neighbors of $$V$$, the average
+degree of a neighbor of $$V$$ is less than $$k|V| / (\alpha k|V|) = 1/\alpha$$. Therefore,
+if we choose $$\alpha = 1/2$$, then the average degree will be less than $$2$$, so there
+must be some vertex in the neighborhood of $$V$$ with degree $$1$$. Therefore,
+if our graph has the expander property with $$\alpha=1/2$$, it will not get
+stuck for any subset of vertices $$V$$, and hence, it will terminate successfully.
 
 ## A Counting Argument
 
