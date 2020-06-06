@@ -131,7 +131,7 @@ Instead, we come to the biggest insight of Bloomier filters: we don't want to
 store which hash was the critical hash, so instead we will use all of the hashes
 to store each element. That way, once we create the table, we can completely
 forget about which hash was the critical hash for each book. For example, we
-might try to make $$T[h_0(\texttt{elem})] + T[h_1(\texttt{elem})]$$ equal to $$\texttt{val}$$ modulo $$m$$. Then,
+might try to make $$T[h_0(\texttt{elem})] + T[h_1(\texttt{elem})]$$ equal to $$\texttt{val}$$ modulo $$2^q$$. Then,
 when we look up $$\texttt{elem}$$, we don't actually need to know which hash we chose to be
 the critical hash: all we need to do is add up values in each hash location
 associated to $$\texttt{elem}$$.
@@ -141,7 +141,7 @@ $$\texttt{elem}$$ to the table, we will only change *either* $$T[h_0(\texttt{ele
 such that $$T[h_0(\texttt{elem})] + T[h_1(\texttt{elem})] = \texttt{val}$$, where $$\texttt{val}$$ is the value we want to
 set. Which one we change is precisely the critical hash. Note that this is
 always possible: if we are changing $$h_0$$, then we can set
-$$T[h_0(\texttt{elem})] = \texttt{val} - T[h_1(\texttt{elem})]$$ modulo $$m$$.
+$$T[h_0(\texttt{elem})] = \texttt{val} - T[h_1(\texttt{elem})]$$ modulo $$2^q$$.
 
 If you think about this, you will realize that the property that we want
 critical hashes to satisfy needs to be a little stronger. Once we process an
@@ -158,7 +158,7 @@ processing $$e_i$$, we **freeze** (this is a purely theoretical concept, we don'
 necessarily freeze anything in the code) $$T[h_0(e_i)],\ldots,T[h_{k-1}(e_i)]$$ so that they will never be written to again.
 
 Then, the **critical hash** $$h_c$$ of an element $$e_j$$ is one of $$h_0(e_j),
-h_1(e_j),\ldots,h_k(e_j)$$ such that when we are processing $$e_j$$, the table
+h_1(e_j),\ldots,h_{k-1}(e_j)$$ such that when we are processing $$e_j$$, the table
 entry $$T[h_c(e_i)]$$ is *not* frozen. This is a stronger property than what we had
 before! The critical hash for $$e_j$$ is not just different from all the
 critical hashes of previous elements. We actually want $$h_c$$ to be different
@@ -204,7 +204,7 @@ location -- to be able to map a book to its database! Because the critical hash 
 always a location that has not been seen before, changing this value does not
 affect any other book. Our filter can effectively match book to database: hash
 the book to its $$k$$ hash locations and return the sum of the table values in
-those locations (modulo the number of databases $$R$$).
+those locations.
 
 ## Detecting Non-Books: Controlling False Positives
 
@@ -217,7 +217,7 @@ a database.
 
 We need an extra layer of randomness to detect when a book is not actually in
 our collection! In addition to $$k$$ hash locations, we ask that our hash
-function also generate a random integer *mask value* $$M$$ in $$[0,m)$$ for each
+function also generate a random integer *mask value* $$M$$ in $$[0,2^q)$$ for each
 book. Instead of adjusting the critical hash for a given element $$\texttt{elem}$$ so that
 $$T[h_0(\texttt{elem})] + ... + T[h_{k-1}(\texttt{elem})] = \texttt{val}$$, we adjust the critical hash so that
 $$M_{\texttt{elem}} + T[h_0(\texttt{elem})] + ... + T[h_{k-1}(\texttt{elem})] = \texttt{val}$$. This way, when we look up a book,
@@ -241,7 +241,7 @@ usefulness of the critical hash depended on the order in which the books were
 processed. We have no guarantee that we would want to change the databases of
 the books in the same order that the books were originally processed in.
 
-We have been also assuming that our databases are numbered $$1,\ldots,R$$. What
+We have been also assuming that our databases are numbered $$0,\ldots,R-1$$. What
 if we didn't want to number the databases in order?
 
 With a little thinking, we can solve both of these problems, and also improve
@@ -263,17 +263,17 @@ $$[0,m)$$. Because our hash function generates $$k$$ hash locations for each
 element, the critical hash can actually be identified with an *index* in
 $$[0,k)$$. When building the filter, for each element we can adjust the critical
 hash so that $$M_{\texttt{elem}} + T[h_0(\texttt{elem})] + ... + T[h_{k-1}(\texttt{elem})] = \texttt{val}$$ is not the database of the
-book modulo $$R$$, but the value $$c\in [0,k)$$ modulo $$k$$ such that $$h_c$$
+book modulo $$2^q$$, but the value $$c\in [0,k)$$ modulo $$k$$ such that $$h_c$$
 is the critical hash! Given this $$c$$, we can use the value $$h_c(\texttt{elem})$$, which
-is unique for each element as an index into an auxiliary table.
+is unique for each element, as an index into an auxiliary table.
 
 Isn't that amazing? We just used $$k$$ hash values to encode which of the $$k$$
 hash values is the critical hash, then interpreted the critical hash as an index
 in a second table. In this auxiliary table, we can store whatever values we
 want. To lookup/update the value associated to an element, figure out which hash is the
 critical one (by adding the values in the hash locations
-$$T[h_1(\texttt{elem})],\ldots,T[h_{k-1}(\texttt{elem})]$$ to the mask
-$$M_{\texttt{elem}}$$ mod $$k$$), hash the
+$$T[h_0(\texttt{elem})],\ldots,T[h_{k-1}(\texttt{elem})]$$ to the mask
+$$M_{\texttt{elem}}$$ mod $$2^q$$), hash the
 element with the critical hash to get an index, and lookup/update the value at
 that index in the second table.
 
@@ -424,7 +424,7 @@ A naive implementation of the algorithm to build the Bloomier filter table might
     along with each element's corresponding critical hash.
   * If $$\texttt{easy}$$ was empty, then we couldn't find any easy elements, so restart from the beginning with new hash functions. Otherwise, proceed as normal.
 4. At the end, build the Bloomier filter. Pop elements from $$\texttt{processStack}$$ one at a time, and for each element $$e$$ and its critical hash $$h_c$$,
-   set $$T[h_c(e)] \equiv \texttt{val} - \left(\sum_{i\neq c} T[h_i(e)] + M_e\right) \pmod m$$, where $$M_e$$ is the random mask (another hash of $$e$$)
+   set $$T[h_c(e)] \equiv \texttt{val} - \left(\sum_{i\neq c} T[h_i(e)] + M_e\right) \pmod{2^q}$$, where $$M_e$$ is the random mask (another hash of $$e$$)
    and $$\texttt{val}$$ is the value we want to associate with $$e$$.
 
 This is very bad because it loops through $$\texttt{hashTable}$$ on every iteration, so an obvious speedup is to only examine the $$k$$ locations in $$\texttt{hashTable}$$ that
@@ -434,7 +434,7 @@ have actually changed in size for each easy element. In particular, let's make a
 2. Loop through $$\texttt{hashTable}$$ once, find all the easy hashes, and add the corresponding elements and hashes to $$\texttt{easyQueue}$$.
 3. While $$\texttt{easyQueue}$$ is non-empty:
     * Dequeue an element from $$\texttt{easyQueue}$$ -- call it $$\texttt{easyElem}$$.
-    * For each hash function $$h_i$$ in $$h_1, h_2, \dots h_k$$:
+    * For each hash function $$h_i$$ in $$h_0, h_1, \dots h_{k-1}$$:
       - Remove $$\texttt{easyElem}$$ from $$\texttt{hashTable}[h_i(\texttt{easyElem})]$$.
       - If $$\texttt{hashTable}[h_i(\texttt{easyElem})]$$ now has size $$1$$, we have created a new easy element by removing
         $$\texttt{easyElem}$$! Add the sole item in $$\texttt{hashTable}[h_i(\texttt{easyElem})]$$ to $$\texttt{easyQueue}$$.
@@ -444,16 +444,17 @@ have actually changed in size for each easy element. In particular, let's make a
 This is obviously a much better algorithm, since for each element, we are only doing a constant amount of work in checking which new elements can be added to $$\texttt{easyQueue}$$,
 rather than looping through the entire hash table on every iteration.
 
-There are still some improvements to be made, however! First, notice that addition and subtraction mod $$m$$, despite being constant time,
-can be quite expensive if $$m$$ is not a power of 2. In fact, any invertible commutative operation will do here, and in practice,
-people almost always use xor instead of addition/subtraction mod $$m$$. Ultimately, there aren't many changes that have to be made.
+There are still some improvements to be made, however! First, notice that addition and subtraction mod $$2^q$$, despite being constant time,
+is not the only possible operation. In fact, any invertible commutative operation will do here, and in practice,
+people almost always use xor instead of addition/subtraction mod $$2^q$$, perhaps to avoid undefined behavior with signed overflow.
+Ultimately, there aren't many changes that have to be made.
 
 Finally, here is a really cool insight that improves the memory usage and runtime of the construction algorithm. Notice that we
 are doing a lot of list operations on the lists that are contained in $$\texttt{hashTable}$$. In particular, we are removing items,
 and not necessarily from the end of the list, so this can be somewhat expensive. Moreover, each list has to maintain its size and keep
 a copy of the title of every book in the list, which takes several bytes. This is only during the construction, so we don't care about
 its memory usage quite as much as the filter itself, but improvements here are still useful. First, an easy improvement is that we
-don't actually have to store entire book titles; we only need to store the books' $$k$$ hashes, mask, and associated value, since this
+don't actually have to store entire book titles; we only need to store the each book's $$k$$ hashes, mask, and associated value, since this
 is all the information that we really care about for each book. Now comes the cool part. Notice that we are only ever retrieving an item
 from the list when the list has size $$1$$. Therefore, instead of actually storing every book's information, let's just store the size of the list along with:
 the sum (mod $$m$$) of all the books' $$h_0$$ hashes, the sum of all the books' $$h_1$$ hashes, etc., as well as the sum of all the books' mask values, and the sum
