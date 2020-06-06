@@ -394,7 +394,7 @@ stuck for any subset of vertices $$V$$, and hence, it will terminate successfull
 ## A Counting Argument
 
 TODO: Write out the binomial coefficients showing that most random graphs
-satisfy the above property for large enough $$n$$.
+satisfy the above property for large enough $$n$$ with $$m=O(n)$$.
 
 ## Tuning Our Filter
 
@@ -407,3 +407,39 @@ TODO: Write out the binomial coefficients showing that the expected number of
 vertices that can be removed at each stage of the critical hash algorithm
 (because they hash to a unique location) is proportional to the number of
 remaining vertices, so that the creation time is expected $$O(n\log n)$$.
+
+## Tips and tricks to improve the runtime in practice
+
+A naive implementation of the algorithm to build the Bloomier filter table might look like this (in pseudocode):
+
+1. Initialize $$\texttt{hashTable}$$, a table of size $$m$$ which maps hashes to the list of elements that hash to them.
+   This is essentially the naive hash table (except it stores $$k$$ copies of every element, since each element has $$k$$ hashes),
+   so it will obviously take up a lot of memory, but we are only using it during construction. This initialization can be done in $$O(n)$$.
+2. Create a stack $$\texttt{processStack}$$ which stores each element and its critical hash in the order that we should process them,
+   with the top of the stack being the element that should be processed first.
+3. While $$\texttt{processStack}$$ has length less than $$n$$:
+  * Loop through $$\texttt{hashTable}$$, find the easy hashes, and put the corresponding easy elements into the list $$\texttt{easy}$$.
+  * For each element in $$\texttt{easy}$$, compute its $$k$$ hashes and remove the element each of those $$k$$ locations in $$\texttt{hashTable}$$.
+  * Since we should process the easy elements before all the other remaining elements (but after all the previous easy elements), add everything in $$\texttt{easy}$$ to $$\texttt{processStack}$$,
+    along with each element's corresponding critical hash.
+  * If $$\texttt{easy}$$ was empty, then we couldn't find any easy elements, so restart from the beginning with new hash functions. Otherwise, proceed as normal.
+
+This is very bad because it loops through $$\texttt{hashTable}$$ on every iteration, so an obvious speedup is to only examine the $$k$$ locations in $$\texttt{hashTable}$$ that
+have actually changed in size for each easy element. In particular, let's make a new queue called $$\texttt{easyQeueue}$$ which stores all of the easy elements. Then,
+
+1. Initialize $$\texttt{hashTable}$$ and $$\texttt{processStack}$$ as before, as well as a queue $$\texttt{easyQueue}$$.
+2. Loop through $$\texttt{hashTable}$$ once, find all the easy hashes, and add the corresponding elements and hashes to $$\texttt{easyQueue}$$.
+3. While $$\texttt{easyQueue}$$ is non-empty:
+    * Dequeue an element from $$\texttt{easyQueue}$$ -- call it $$\texttt{easyElem}$$.
+    * For each hash function $$h_i$$ in $$h_1, h_2, \dots h_k$$:
+      - Remove $$\texttt{easyElem}$$ from $$\texttt{hashTable}[h_i(\texttt{easyElem})]$$.
+      - If $$\texttt{hashTable}[h_i(\texttt{easyElem})]$$ now has size $$1$$, we have created a new easy element by removing
+        $$\texttt{easyElem}$$! Add the sole item in $$\texttt{hashTable}[h_i(\texttt{easyElem})]$$ to $$\texttt{easyQueue}$$.
+    * Add $$\texttt{easyElem}$$ and its critical hash to $$\texttt{processQueue}$$.
+
+This is obviously a much better algorithm, since for each element, we are only doing a constant amount of work in checking which new elements can be added to $$\texttt{easyQueue}$$,
+rather than looping through the entire hash table on every iteration.
+
+There are still some improvements to be made, however!
+
+
