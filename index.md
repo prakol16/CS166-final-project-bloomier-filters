@@ -477,6 +477,6 @@ bound that at least $$\log\epsilon^{-1}$$ bits are required even for an ordinary
 Therefore, we have only a 23% "overhead" compared to the theoretical optimal.
 
 But can we actually do better, by reducing this 23% overhead to
-something even smaller? As Keith says so often, if the answer was no, we probably wouldn't be asking, so continue over to [part 2](/part2) to see how low
+something even smaller? As Keith says so often, if the answer was no, we probably wouldn't be asking, so continue over to [part 2](part2) to see how low
 we can actually get this overhead down to.
 
