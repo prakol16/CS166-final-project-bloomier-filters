@@ -21,8 +21,8 @@ is around 30 bytes long, a naïve hash table might require 30 bytes per entry!
 Surely we can do better! For example, if the books were conveniently titled $$0, 1, \dots n-1$$,
 then we could easily get away with only $$\log R$$ bits per book using a simple table. Sadly,
 the great authors of the 20th century did not have the foresight to title their books
-in such a logical manner, but perhaps with some clever hashing techniques, we might approach
-this lower bound.
+in such a logical manner -- but perhaps with some clever hashing techniques, could we approach
+this lower bound?
 
 In the case $$R=1$$, (there is only one secondary database), the central
 database only needs to accept or reject books, depending on whether they are in
@@ -199,8 +199,8 @@ almost all the way to a functional filter! This is a big if, but we'll come back
 to this. For now, let's assume we can quickly choose a critical hash for each
 element and see what that gets us.
 
-We only need to change that one value in the table--the one at the critical hash
-location--o be able to map a book to its database! Because the critical hash is
+We only need to change that one value in the table -- the one at the critical hash
+location -- to be able to map a book to its database! Because the critical hash is
 always a location that has not been seen before, changing this value does not
 affect any other book. Our filter can effectively match book to database: hash
 the book to its $$k$$ hash locations and return the sum of the table values in
@@ -408,7 +408,7 @@ vertices that can be removed at each stage of the critical hash algorithm
 (because they hash to a unique location) is proportional to the number of
 remaining vertices, so that the creation time is expected $$O(n\log n)$$.
 
-## Tips and tricks to improve the runtime in practice
+## (Optional) Tips and tricks to improve the runtime in practice
 
 A naive implementation of the algorithm to build the Bloomier filter table might look like this (in pseudocode):
 
@@ -423,6 +423,9 @@ A naive implementation of the algorithm to build the Bloomier filter table might
   * Since we should process the easy elements before all the other remaining elements (but after all the previous easy elements), add everything in $$\texttt{easy}$$ to $$\texttt{processStack}$$,
     along with each element's corresponding critical hash.
   * If $$\texttt{easy}$$ was empty, then we couldn't find any easy elements, so restart from the beginning with new hash functions. Otherwise, proceed as normal.
+4. At the end, build the Bloomier filter. Pop elements from $$\texttt{processStack}$$ one at a time, and for each element $$e$$ and its critical hash $$h_c$$,
+   set $$T[h_c(e)] \equiv \texttt{val} - \left(\sum_{i\neq c} T[h_i(e)] + M_e\right) \pmod m$$, where $$M_e$$ is the random mask (another hash of $$e$$)
+   and $$\texttt{val}$$ is the value we want to associate with $$e$$.
 
 This is very bad because it loops through $$\texttt{hashTable}$$ on every iteration, so an obvious speedup is to only examine the $$k$$ locations in $$\texttt{hashTable}$$ that
 have actually changed in size for each easy element. In particular, let's make a new queue called $$\texttt{easyQeueue}$$ which stores all of the easy elements. Then,
@@ -436,10 +439,37 @@ have actually changed in size for each easy element. In particular, let's make a
       - If $$\texttt{hashTable}[h_i(\texttt{easyElem})]$$ now has size $$1$$, we have created a new easy element by removing
         $$\texttt{easyElem}$$! Add the sole item in $$\texttt{hashTable}[h_i(\texttt{easyElem})]$$ to $$\texttt{easyQueue}$$.
     * Add $$\texttt{easyElem}$$ and its critical hash to $$\texttt{processQueue}$$.
+4. At the end, check if $$\texttt{processStack}$$ has length $$n$$. If it does, we succeeded; otherwise, create new hash functions and try again.
 
 This is obviously a much better algorithm, since for each element, we are only doing a constant amount of work in checking which new elements can be added to $$\texttt{easyQueue}$$,
 rather than looping through the entire hash table on every iteration.
 
-There are still some improvements to be made, however!
+There are still some improvements to be made, however! First, notice that addition and subtraction mod $$m$$, despite being constant time,
+can be quite expensive if $$m$$ is not a power of 2. In fact, any invertible commutative operation will do here, and in practice,
+people almost always use xor instead of addition/subtraction mod $$m$$. Ultimately, there aren't many changes that have to be made.
 
+Finally, here is a really cool insight that improves the memory usage and runtime of the construction algorithm. Notice that we
+are doing a lot of list operations on the lists that are contained in $$\texttt{hashTable}$$. In particular, we are removing items,
+and not necessarily from the end of the list, so this can be somewhat expensive. Moreover, each list has to maintain its size and keep
+a copy of the title of every book in the list, which takes several bytes. This is only during the construction, so we don't care about
+its memory usage quite as much as the filter itself, but improvements here are still useful. First, an easy improvement is that we
+don't actually have to store entire book titles; we only need to store the books' $$k$$ hashes, mask, and associated value, since this
+is all the information that we really care about for each book. Now comes the cool part. Notice that we are only ever retrieving an item
+from the list when the list has size $$1$$. Therefore, instead of actually storing every book's information, let's just store the size of the list along with:
+the sum (mod $$m$$) of all the books' $$h_0$$ hashes, the sum of all the books' $$h_1$$ hashes, etc., as well as the sum of all the books' mask values, and the sum
+of each book's associated database. This "list" has a fixed size since we are only storing the sums of its elements, so it take a constant amount of memory;
+moreover, we no longer even have to store pointers to the lists in $$\texttt{hashTable}$$, since the size of the lists are known at compile-time,
+instantly saving another $$8m$$ bytes on a 64-bit machine. Even better, we can easily delete items from this "list"; to remove an element $$\texttt{elem}$$,
+simply subtract $$h_0(\texttt{elem})$$ from the list's total $$h_0$$, subtract $$h_1(\texttt{elem})$$ from the list's total $$h_1$$ etc. (For consistency,
+I've continued using addition and subtraction, but again, in practice this would be xor and xor). This takes $$O(1)$$ time. The only time we retrieve an
+element is when the size of the list is $$1$$. In this case, we can easily retrieve all of the book's information because the sums are precisely
+the information we want. Thus, we have created "lists" that we can use in the hash table which use $$O(1)$$ memory and support $$O(1)$$ deletion and singleton retrieval.
+
+As a last consideration, in order to truly minimize our memory usage, we have to minimize $$m$$, the table size. What is the smallest table size can we choose
+while still allowing the construction to succeed in a reasonable time? While we proved that $$m=2n$$ is enough (and this is good enough for the asymptotic bound),
+a closer theoretical analysis or emperical observations will show that $$m=1.23n$$ is about the minimum you can get away with. Thus, with a false positive rate of $$\epsilon$$,
+we need $$1.23\left(\log R + \log\epsilon^{-1}\right)$$ bits per element for an immutable filter. Compare this to our wish of $$\log R$$ bits per element when we were
+wishing that all the books were simply titled $$0, 1, \dots n-1$$, and I'd say we came surprisingly close! But can we actually do better, by reducing this 23% "overhead" to
+something even smaller? As Keith says so often, if the answer was no, we probably wouldn't be asking, so continue over to part two to see how low
+we can actually get this overhead down to.
 
