@@ -411,7 +411,16 @@ Where does this expression come from? First, note that $$s$$ iterates from $$1$$
 
 Note that the summation above does indeed overshoot the probability, since a single unsuccessful graph may fail in multiple ways. For example, two distinct subsets of the left vertices of $$s$$ may both have less than $$\lfloor ks/2 \rfloor$$ neighbors. Although this is just one failed graph, it is counted at least twice in our summation.
 
-In order to simplify our expression a little bit, we will use a couple of algebraic manipulations as well as Stirlings formula, which tells us that $$n! \approx \sqrt{2\pi n} \left(\frac{n}{e}\right)^n$$, which means $$n! < \left(\frac{n}{e}\right)^n$$.
+In order to simplify our expression a little bit, we will use a couple of algebraic manipulations as well as the upper bound $$\binom{n}{k}\le \left({} \frac{ne}{k} \right)^k$$. To see where this comes from, expand out $$\binom{n}{k} = \frac{n(n-1)\cdots{}(n-(k-1))}{k!}\le
+\frac{n^k}{k!}$$, because the numerator contains $$k$$ numbers each
+at most $$n$$. To get an upper bound for
+$$\frac{n^k}{k!}$$, we need a lower bound for $$k!$$. The Taylor expansion for
+$$e^x$$ comes in handy here. From $$e^k = \sum_{i=1}^{\infty} \frac{k^i}{i!}$$, pick out
+the term $$\frac{k^k}{k!}$$---it is less than $$e^k$$ because every term in the
+Taylor series is positive. This gives $$\frac{k^k}{k!}<e^k$$, or $$\frac{1}{k!}
+< \left({} \frac{e}{k} \right)^k$$. Putting everything together, we conclude $$\binom{n}{k}\le \left({} \frac{ne}{k} \right)^k$$.
+
+Stirlings formula, which tells us that $$n! \approx \sqrt{2\pi n} \left(\frac{n}{e}\right)^n$$, which means $$n! < \left(\frac{n}{e}\right)^n$$.
 
 
 
