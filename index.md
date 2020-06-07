@@ -396,6 +396,13 @@ stuck for any subset of vertices $$V$$, and hence, it will terminate successfull
 TODO: Write out the binomial coefficients showing that most random graphs
 satisfy the above property for large enough $$n$$ with $$m=O(n)$$.
 
+One of the most important assumptions that our algorithm relies on is the fact that we can 
+critical hashes in a reasonable amount of time. In particular, we would like to show that 
+the process of finding critical hashes outlined above (in other words, its corresponding bipartite graph representation has the lossless expansion propety) succeeds with probability 
+bounded below by some constant $$p$$.
+
+
+
 ## Tuning Our Filter
 
 Say we want a false positive rate of at most $$0\lt\epsilon{}\lt1$$. That is, books not in our
