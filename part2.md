@@ -9,7 +9,8 @@ mathjax: true
 So far, we've been visualizing our hash functions and elements as a bipartite graph, with
 $$n$$ books on the left and $$m$$ hashes on the right. This is fine, but to bring us more
 in line with the terminology of [this paper](https://arxiv.org/pdf/1907.04749.pdf)
-by Dietzfelbinger et al., we will transition to the terminology of "hypergraphs." A hypergraph
+by Dietzfelbinger et al. (which forms most of the basis of this part),
+we will transition to the terminology of "hypergraphs." A hypergraph
 is simply a generalization of a graph where edges can connect more than two vertices. In other words,
 rather than thinking of edges as lines between vertices, think of them as blobs that can include
 many vertices. For example, if our bipartite graph looks like this (with each book having $$k=3$$ hashes):
@@ -62,14 +63,44 @@ large random graph satisfies that property with probability arbitrarily close to
 
 A similar 0-1 law applies for random hypergraphs of fixed edge density.
 For example, consider a "basic" random $$k$$-uniform hypergraph,
-where each edge consists of $$k$$ uniformly and independently selected distinct random vertices. As the overhead increases,
-it becomes more and more likely that the graph is peelable, but as the overhead decreases to $$1$$, the probability
-that the graph is peelable goes to $$0$$. We showed in part 1 that $$m$$ only has to be linear in $$n$$ for the Bloomier
-filter construction to succeed with high enough probability, so when the overhead is somewhere between $$1$$ and some constant,
-there is a transition from low to high probability. We can plot the probability that the graph is peelable against the overhead $$m/n$$ for various $$n$$. 
+where each edge consists of $$k$$ uniformly and independently selected distinct random vertices.
+We can plot the probability that the graph is peelable against the overhead $$m/n$$ for various $$n$$. 
 
-TODO: Add graph (plotly?)
+<div id="p-vs-mn-basic-graph">
+</div>
 
+(For each $$n$$, 100 trials were run to determine the approximate, empirical probability of success). As you can see, as $$n$$ increases,
+the probability graph looks more and more like a step function. The threshold which marks this boundary is $$m/n\approx 1.222$$.
+When $$m/n \gt 1.222$$, then a large enough hypergraph is almost surely peelable, while if $$m/n \lt 1.222$$ then it almost surely isn't.
+Therefore, interpreting this result in the context of Bloomier filters, if the table size is at least 23% larger than $$n$$, then it is very likely
+that the construction procedure will eventually succeed, especially for large $$n$$.
+
+This 0-1 law suggests some new definitions. We define the peelability threshold $$c_3^{-1}\approx 1.222$$ for $$k=3$$ to be the overhead threshold at which a large ordinary
+random hypergraph switches from being unpeelable to peelable. The inverse is there to be consistent with Dietzfelbinger et al., who use this
+quantity's reciprocal (the edge density threshold) $$c_3\approx 0.818$$. Similarly, we define the orientability threshold $c_3^{*-1}\approx 1.09$
+of a random hypergraph, which is the minimum overhead we need to ensure orientability for large $$n$$. Since peelability is a stronger condition than orientability,
+we clearly have $$c_3^{-1} \geq c_3^{*-1}$. But maybe, if we could construct our graphs in a cleverer way, might we reduce our peelability threshold?
+Could we go so far as to have a peelability threshold equal to the orientability threshold?
+
+# Fuse graphs and Band graphs
+
+The construction of a "fuse graph" is introduced in the paper by Dietzfelbinger et al.
+To construct a fuse graph, divide your hash space (the vertices) into $$\ell$$ "segments." Rather than assigning vertices to edges at random (based on the hash value), you pick one of the first $$\ell - 2$$ (or more generally $$\ell - k + 1$$) segments. Then, you pick one vertex randomly from each of the 3 consecutive segments starting at that slot. That's all you have to do -- it's actually a very easy and minor modification from the original algorithm.
+
+Why is it better? Consider the vertices in the first segment. These vertices have a pretty small chance of being picked -- smaller than all vertices in other segments at least -- because there is only 1 consecutive block of 3 segments containing the first segment. Vertices in middle segments have an expected degree of about $$kn/m$$, but vertices at the ends only have an expected degree of $$n/m$$,
+which is less than $$1$$. Therefore, it's likely that most of the vertices in the first segment of non-zero degree have degree 1, so they end up getting peeled away. The same goes for vertices on the other end.
+
+But then, the second segment is now the one on the edge! So now that all or most of the vertices in segment 1 are deleted, it is likely that many of the vertices in segment 2 have degree 1. Therefore, most of the vertices in segment 2 get peeled away.
+
+This process continues, and essentially, we have the graph peeling away like a firecracker, as though there were sparks lit at the end burning through the graph (this is where "fuse" comes from).
+
+In practice, we've typically seen $$\ell$$ fixed to an arbitrary constant, such as $$\ell=100$$. We will explore how the optimal value of $$\ell$$ changes as $$n$$ changes.
+
+In the same paper by Dietzfelbinger et al., they propose an alternative construction in the "Future Work" section, which they don't explore but we will explore here.
+We'll call this a limited bandwidth graph, or a band graph for short. Instead of dividing up the vertices into segments, we pick a value $d=n\epsilon$ and choose a random consecutive block of $d$ vertices. Then, each edge gets assigned to a random $k$-subset of those $d$ vertices. These graphs are highly peelable for essentially the same reason -- they burn from the edges. The first few vertices of nonzero degree are very likely to have degree exactly $1$, because all of the first $d$ vertices have a lower than usual chance of being picked. Thus, those vertices get mostly peeled away. But then, the vertices from $d$ to $2d$ are now the new vertices at the beginning, so, given that the first $d$ vertices were deleted along with their edges, it is likely that the vertices between $d$ and $2d$ have low degree, so they get peeled off. This continues until the entire graph burns through from the outside in.
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}"></script>
 
 
 
