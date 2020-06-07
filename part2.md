@@ -77,9 +77,9 @@ that the construction procedure will eventually succeed, especially for large $$
 
 This 0-1 law suggests some new definitions. We define the peelability threshold $$c_3^{-1}\approx 1.222$$ for $$k=3$$ to be the overhead threshold at which a large ordinary
 random hypergraph switches from being unpeelable to peelable. The inverse is there to be consistent with Dietzfelbinger et al., who use this
-quantity's reciprocal (the edge density threshold) $$c_3\approx 0.818$$. Similarly, we define the orientability threshold $c_3^{*-1}\approx 1.09$
+quantity's reciprocal (the edge density threshold) $$c_3\approx 0.818$$. Similarly, we define the orientability threshold $$c_3^{*-1}\approx 1.09$$
 of a random hypergraph, which is the minimum overhead we need to ensure orientability for large $$n$$. Since peelability is a stronger condition than orientability,
-we clearly have $$c_3^{-1} \geq c_3^{*-1}$. But maybe, if we could construct our graphs in a cleverer way, might we reduce our peelability threshold?
+we clearly have $$c_3^{-1} \geq c_3^{*-1}$$. But maybe, if we could construct our graphs in a cleverer way, might we reduce our peelability threshold?
 Could we go so far as to have a peelability threshold equal to the orientability threshold?
 
 # Fuse graphs and Band graphs
@@ -97,7 +97,35 @@ This process continues, and essentially, we have the graph peeling away like a f
 In practice, we've typically seen $$\ell$$ fixed to an arbitrary constant, such as $$\ell=100$$. We will explore how the optimal value of $$\ell$$ changes as $$n$$ changes.
 
 In the same paper by Dietzfelbinger et al., they propose an alternative construction in the "Future Work" section, which they don't explore but we will explore here.
-We'll call this a limited bandwidth graph, or a band graph for short. Instead of dividing up the vertices into segments, we pick a value $d=n\epsilon$ and choose a random consecutive block of $d$ vertices. Then, each edge gets assigned to a random $k$-subset of those $d$ vertices. These graphs are highly peelable for essentially the same reason -- they burn from the edges. The first few vertices of nonzero degree are very likely to have degree exactly $1$, because all of the first $d$ vertices have a lower than usual chance of being picked. Thus, those vertices get mostly peeled away. But then, the vertices from $d$ to $2d$ are now the new vertices at the beginning, so, given that the first $d$ vertices were deleted along with their edges, it is likely that the vertices between $d$ and $2d$ have low degree, so they get peeled off. This continues until the entire graph burns through from the outside in.
+We'll call this a limited bandwidth graph, or a band graph for short. Instead of dividing up the vertices into segments, we let $$d=n/b$$ (where $$b$$, the "band size," is a tuneable parameter), and choose a random consecutive block of $$d$$ vertices. Then, each edge gets assigned to a random $$k$$-subset of those $$d$$ vertices. These graphs are highly peelable for essentially the same reason -- they burn from the edges. The first few vertices of nonzero degree are very likely to have degree exactly $$1$$, because all of the first $$d$$ vertices have a lower than usual chance of being picked. Thus, those vertices get mostly peeled away. But then, the vertices from $d$ to $2d$ are now the new vertices at the beginning, so, given that the first $d$ vertices were deleted along with their edges, it is likely that the vertices between $$d$$ and $$2d$$ have low degree, so they get peeled off. This continues until the entire graph burns through from the outside in.
+
+Just as we have the peelability threshold for ordinary random hypergraphs $$c_3^{-1}$$, we can also define the constants $$f_{3}^{-1}$$,
+the peelability threshold for fuse graphs, and $$h_{3}^{-1}$$, the peelability threshold for band graphs. First, it is not actually clear that these definitions make sense. The constructions
+of fuse graphs and band graphs require additional parameters $$\ell$$ and $$b$$, so shouldn't we define them as $$f_{3,\ell}^{-1}$$? Actually, it turns out that as $$n\rightarrow\infty$$,
+the threshold is the same independent of those parameters as long as $$\ell \gg k$$ and $$b \gg k$$ (note that $$k$$ is a constant, so these can be constants as well).
+
+It seems intuitive that $$f_{3}^{-1} \geq c_{3}^{*-1}$$ and similarly for $$h_3^{-1}$$. In other words, it is reasonable that the orientability overhead thresholds for basic random hypergraphs
+are still lower bounds for the peelability of these new hypergraphs. Remember, there is no way we can peel the graph if we can't even find an orientation! Here is a proof sketch: first, notice that if we glue the ends of the vertices together so that the last $$k$$ segments and the first $$k$$ segments are considered the same, then the distribution of edges among vertices looks essentially the same as that of a completely random hypergraph. In particular, since we lose the whole benefit of being able to burn from the edges first, every vertex has the same expected degree. To make this rigorous, we would need the notion of the random weak limit of a hypergraph, which is beyond our scope here. Therefore, if we have an edge density above $$c_k^*$$
+and glue the ends of the graph together, with probability $1$ in the limit, we are not orientable. Actually, there is an even stronger claim -- the number of vertices we can't find orientations for is linear in $$n$$. It is at least $$\epsilon n$$ for some small $$\epsilon > 0$$ depending on how close we are to the orientability threshold. Therefore, even when we unglue those vertices, if our segment lengths are small enough compared to $$n$$ (i.e. for large enough $$\ell$$), we can only add at most the ends to the orientable vertices, which is not enough to make the whole thing orientable. Therefore, $$f_k \leq c_k^*$$. Essentially, the same trick of glueing the ends works for band graphs as well.
+Furthermore, we might even conjecture that *any* family of $$k$$-uniform hypergraphs where every edge is selected independently and with the same distribution over the vertices
+has an orientability threshold of at most $$c_k^{-1*}$$.
+
+If you look in the table in the Fuse graphs paper, however, you'll notice that $$f_k$$
+is actually really close to the theoretical upper bound -- only $$c_k^* - 10^{-5}$$.
+They conjecture that with the alternative construction, you actually get $$h_k=c_k^*$$. In other words, in the alternative construction, 
+the conjecture is that a limited bandwidth hypergraph is peelable with the same probability that it is orientable (for large enough $$n$$).
+
+# Examining the convergence rate
+
+The paper does a good job of presenting the theoretical results of fuse graphs as $$n\rightarrow\infty$$, but we want to investigate the case where
+$$n$$ is finite and not necessarily sufficiently large. First we should look at how fast the convergence is so we have a numerical estimate on how large is "sufficiently large,"
+and where we need to focus on. For this, we need some new definitions. We can consider the surfaces where the probability of peelability is exactly $$1/2$$. In particular,
+define the surface $$S_R = (n, m/n)$$ which has all the collection of points $$(n, m/n)$$ such that the probability of a random hypergraph of $$n$$ edges and overhead $$m/n$$ is exactly $$1/2$$. In
+other words, we are looking at the parameters at which the hypergraphs are "transitioning."
+Define $$S_\ell = (n, \ell, m/n)$$ and $$S_b = (n, b, m/n)$$ 
+similarly for the segmented hypergraph and band hypergraph respectively. Since $$S_\ell$$ and $$S_b$$ are 2-dimensional surfaces embedded in a 3d space, they are harder to plot, so we will be plotting slices and contours of these surfaces.
+
+Here is a plot of $$m/n$$ against $$n$$ for the random hypergraph:
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}"></script>
