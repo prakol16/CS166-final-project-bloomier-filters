@@ -121,12 +121,23 @@ The paper does a good job of presenting the theoretical results of fuse graphs a
 $$n$$ is finite and not necessarily sufficiently large. First we should look at how fast the convergence is so we have a numerical estimate on how large is "sufficiently large,"
 and where we need to focus on. For this, we need some new definitions. We can consider the surfaces where the probability of peelability is exactly $$1/2$$. In particular,
 define the surface $$S_R = (n, m/n)$$ which has all the collection of points $$(n, m/n)$$ such that the probability of a random hypergraph of $$n$$ edges and overhead $$m/n$$ is exactly $$1/2$$. In
-other words, we are looking at the parameters at which the hypergraphs are "transitioning."
+other words, we are looking at the parameters at which the hypergraphs are right in the middle of "transitioning" for low-peelability to high-peelability.
 Define $$S_\ell = (n, \ell, m/n)$$ and $$S_b = (n, b, m/n)$$ 
 similarly for the segmented hypergraph and band hypergraph respectively. Since $$S_\ell$$ and $$S_b$$ are 2-dimensional surfaces embedded in a 3d space, they are harder to plot, so we will be plotting slices and contours of these surfaces.
 
 Here is a plot of $$m/n$$ against $$n$$ for the random hypergraph:
 
+<div id="mn-vs-n-basic-convergence-graph">
+</div>
+
+(How do we find the precise $$m/n$$ that gives a probability of peelability of $$1/2$$? We will discuss that below in the Methods section). This shows rapid convergence,
+and by $$n > 10000$$, we are already at an overhead of only $$1.224$$. On the other hand, the other two kinds of hypergraphs converge more slowly:
+
+<div id="mn-vs-n-segmented-convergence-graph">
+</div>
+
+<div id="mn-vs-n-band-convergence-graph">
+</div>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}"></script>
 
