@@ -164,7 +164,38 @@ by the mapping $$m/n \mapsto (m/n - T)^{-1/2}$$, where $$T$$ is the appropriate 
 So far, we have been using graphs that, given $$n$$, show the value of $$m/n$$ that marks the boundary where the probability that a hypergraph with those
 parameters is peelable is exactly $$1/2$$. How did we arrive at those numbers? What are the error bounds? We will answer those questions in this section.
 
-We used a Markov decision process to find the value $$m/n$$
+We used a Markov decision process to find the value $$m/n$$. More generally, consider a general process where we estimate the probabiliy of some event whose probability is given
+by $$P(x)$$ where $$x$$ is some parameter we can vary. (In our case, $$x=m/n$$). We want to find the $$x$$ such that $$P(x)=1/2$$, and we know $$P(x)$$ is a monotonically
+increasing function of $$x$$ (as $$m$$ increases, the probability of success must go up). We estimate the parameter as follows:
+pick a starting point $$x$$ and a step value $$\Delta x$$. Run the process; if it succeeds, decrement
+$$x$$ by $$\Delta x$$. Otherwise, increment $$x$$ by $$\Delta x$$. We would like to analyze this process, and get an estimate of the variance of $$x$$.
+
+Without loss of generality, let us transform the problem to the origin for convenience, so that the true value where $$P(x)=0.5$$ is at $$x=0$$.
+We don't actually know anything about the function $$P(x)$$, but we will make the strong simplifying assumption that it is a linear step function.
+In particular, let $$C = dP/dx$$ be the derivative of $$P$$ at $$x=0$$, and assume $$P = Cx+1/2$$ (clamped at $$0$$ or $$1$$). A higher derivative is better
+for us (e.g. taking the limiting case where $$C\rightarrow\infty$$; then the final $$x$$ will always be within $$\Delta x$$ of the correct answer),
+and conversely, by making the derivative smaller than it actually is (e.g. the average slope between the parameters which result in $$P(x)\approx 0$$ and $$P(x)\approx 1$$),
+we actually get a lower bound for the variance.
+
+We reinterpret the Markov process as follows: imagine two boxes containing a total of $$N = 1/(C\Delta x)$$ tokens. If there are $$n$$ tokens in the left box, we will
+interpret that as being at the parameter $$x = (n - N/2)\Delta x$$. An iteration of the process corresponds to picking a random token and moving it to the opposite box.
+If there are $$n$$ tokens in the left box, the probability that we move down by $$\Delta x$$ should be $$P(x) = Cx+1/2$$. Indeed, the probability is the probability that
+we pick a token from the left box, which occurs with probability
+
+$$\frac{n}{N} = C\Delta x n = C\Delta x n - C\Delta x N / 2 + C\Delta x N / 2 = Cx + 1/2 = P(x) $$
+
+It is clear, however, that in the limit, if we treat the tokens as distinct, every token has an equal chance of being in either box by symmetry.
+This is the invariant distribution. Therefore, the ultimate distribution of the number of tokens in the left box is $$n\sim\text{Binom}(N, 1/2)$$. Since this has
+expectation $$1/2$$, we have $$\mathbb{E}(x) = (N/2 - N/2)\Delta x = 0$$, so our estimator is unbiased. Moreover, $$\text{Var}[n] = N/4$$. Therefore,
+since $$x = (n - N/2)\Delta x$$, we have $$\text{Var}[x] = \Var[n\Delta x] = N\Delta x^2/4 = \Delta x / (4C)$$. Thus, the standard deviation is $$\sqrt{\Delta x/(4C)}$$.
+
+In our simulations, we used $$1000$$ iterations, and a step rate that was annealed exponentially based on how close to half of the last $$32$$ simulations were a success.
+Ultimately, an estimate for the average step rate near $$1/2$$ is $$1.3\times 10^{-5}$$, although it would be as high as $$0.01$$ at the beginning of the simulation.
+Moreover, $$C$$ can be conservatively bounded below at $$50$$ for $$n\geq 10^4$$, based on the convergence graphs at the beginning (the probability went from $$0$$
+to $$1$$ within a change of $$0.02$$ of the parameter $$m/n$$). Therefore, this results in a standard deviation for our estimates of $$2.5\times 10^{-4}$$. In practice,
+the estimates might be better since $$C$$ is larger than estimated for many of our simulations, especially when $$n$$ is large.
+
+# Optimizing $$\ell$$ and $$b$$
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}"></script>
