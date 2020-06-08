@@ -101,8 +101,10 @@ We'll call this a limited bandwidth graph, or a band graph for short. Instead of
 
 Just as we have the peelability threshold for ordinary random hypergraphs $$c_3^{-1}$$, we can also define the constants $$f_{3}^{-1}$$,
 the peelability threshold for fuse graphs, and $$h_{3}^{-1}$$, the peelability threshold for band graphs. First, it is not actually clear that these definitions make sense. The constructions
-of fuse graphs and band graphs require additional parameters $$\ell$$ and $$b$$, so shouldn't we define them as $$f_{3,\ell}^{-1}$$? Actually, it turns out that as $$n\rightarrow\infty$$,
-the threshold is the same independent of those parameters as long as $$\ell \gg k$$ and $$b \gg k$$ (note that $$k$$ is a constant, so these can be constants as well).
+of fuse graphs and band graphs require additional parameters $$\ell$$ and $$b$$, so shouldn't we define them as $$f_{3,\ell}^{-1}$$? Actually, it turns out that if we define $$f_3^{-1}$$ to
+be the threshold as $$\ell\rightarrow\infty$$, then the threshold for any finite $$\ell$$ is simply $$f_3^{-1}\cdot\frac{\ell+2}{\ell}$$. This is proven in the paper, and is essentially an
+artifact of the finiteness of our segments. Similarly, we can define $$h_3^{-1}$$ to be the
+limiting threshold as $$b\rightarrow\infty$$, so that for finite $$b$$, we have $$h_{3,z}^{-1}=h_3^{-1}\cdot\frac{b+1}{b}$$.
 
 It seems intuitive that $$f_{3}^{-1} \geq c_{3}^{*-1}$$ and similarly for $$h_3^{-1}$$. In other words, it is reasonable that the orientability overhead thresholds for basic random hypergraphs
 are still lower bounds for the peelability of these new hypergraphs. Remember, there is no way we can peel the graph if we can't even find an orientation! Here is a proof sketch: first, notice that if we glue the ends of the vertices together so that the last $$k$$ segments and the first $$k$$ segments are considered the same, then the distribution of edges among vertices looks essentially the same as that of a completely random hypergraph. In particular, since we lose the whole benefit of being able to burn from the edges first, every vertex has the same expected degree. To make this rigorous, we would need the notion of the random weak limit of a hypergraph, which is beyond our scope here. Therefore, if we have an edge density above $$c_k^*$$
@@ -130,7 +132,7 @@ Here is a plot of $$m/n$$ against $$n$$ for the random hypergraph:
 <div id="mn-vs-n-basic-convergence-graph">
 </div>
 
-(How do we find the precise $$m/n$$ that gives a probability of peelability of $$1/2$$? We will discuss that below in the Methods section). This shows rapid convergence,
+(How do we find the precise $$m/n$$ that gives a probability of peelability of $$1/2$$? We will discuss that below in the [Methods](#methods) section). This shows rapid convergence,
 and by $$n > 10000$$, we are already at an overhead of only $$1.224$$. On the other hand, the other two kinds of hypergraphs converge more slowly:
 
 <div id="mn-vs-n-segmented-convergence-graph">
@@ -138,6 +140,32 @@ and by $$n > 10000$$, we are already at an overhead of only $$1.224$$. On the ot
 
 <div id="mn-vs-n-band-convergence-graph">
 </div>
+
+The adjusted graphs have the overheads multiplied by $$\ell/(\ell+2)$$ and $$b/(b+1)$$ respectively, so that all the graphs are converging to the same value.
+A reasonable value of $$\ell$$ or $$b$$ is one that works even for large $$n$$ e.g. $$\ell=100$$, or $$b=25$$. The graphs show that even at $$n=10^4$$,
+they aren't that close yet to converging. Moreover, for $$n \lt 10^4$$, because of the "finiteness" artifacts (i.e. the thresholds are multiplied by $$1+2/\ell$$
+or $$1+1/b$$), for $$n \lt 10^4$$, no value of $$\ell$$ or $$b$$ gives better results than the ordinary random construction.
+
+If you play with the numbers and examine these graphs for long enough, you might eventually see a pattern for the convergence rate. It seems like if we let $$D=m/n-f_k(1+2/\ell)$$
+or $$D=m/n-h_k(1+1/b)$$ be the distance from convergence, then $$D=\Theta\left(n^{-1/2}\right)$$. To give numerical evidence for our claim, here is the same two graphs but with the overhead transformed
+by the mapping $$m/n \mapsto (m/n - T)^{-1/2}$$, where $$T$$ is the appropriate limiting value for the particular parameters:
+
+<div id="mn-vs-n-segmented-convergence-graph-transformed">
+</div>
+
+
+<div id="mn-vs-n-band-convergence-graph-transformed">
+</div>
+
+<!-- TODO: use better data, ideally linearly spaced, not logarithmically spaced e.g. n=10k-20k -->
+
+# Methods
+
+So far, we have been using graphs that, given $$n$$, show the value of $$m/n$$ that marks the boundary where the probability that a hypergraph with those
+parameters is peelable is exactly $$1/2$$. How did we arrive at those numbers? What are the error bounds? We will answer those questions in this section.
+
+We used a Markov decision process to find the value $$m/n$$
+
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}"></script>
 

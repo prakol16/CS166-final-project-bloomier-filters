@@ -258,11 +258,13 @@ var createNvsMN_BasicConvergence = function() {
     xaxis: { title: '$n$', type: 'log' },
     yaxis: { title: 'Overhead', range: [1.15, 1.3] }
   };
+  console.log("Trace basic", trace.x.map(x => Math.log(x)), trace.y.map(y => Math.pow(y - 1.2217, -0.25)));
   Plotly.newPlot('mn-vs-n-basic-convergence-graph', [trace, straight], layout);
 };
 
 var createNvsMN_SegmentConvergence = function() {
   let traces = [];
+  let adjustedTraces = [];
   let straight = {
     x: [],
     y: [],
@@ -290,22 +292,68 @@ var createNvsMN_SegmentConvergence = function() {
       name: '$l=' + ell + '$',
       line: {shape: 'spline'}
     };
+    let adjusted = $.extend(true, {}, trace);
+    adjusted.visible = false;
     for (let data of ells.objs) {
       trace.x.push(data.n); trace.y.push(data.m_n);
+      adjusted.x.push(data.n); adjusted.y.push(data.m_n * (ell / (ell + 2)));
+    }
+    traces.push(trace);
+    adjustedTraces.push(adjusted);
+  }
+  let visibilities = Array(traces.length * 2).fill().map((_, i) => i < traces.length);
+  let adjustedVisibilities = visibilities.map(x => !x);
+  for (let i = 0; i < 2; ++i) { visibilities.push(true); adjustedVisibilities.push(true); }
+  var layout = {
+    title: 'Minimum overhead vs n for segmented random hypergraph',
+    xaxis: { title: '$n$', type: 'log' },
+    yaxis: { title: 'Overhead' },
+    updatemenus: [{
+      buttons: [
+        {args: [{'visible': visibilities}], label: 'Original', method: 'update'},
+        {args: [{'visible': adjustedVisibilities}], label: 'Adjusted', method: 'update'}
+      ],
+        direction: 'left',
+        pad: {'r': 10, 't': 10},
+        showactive: true,
+        type: 'buttons',
+        xanchor: 'left',
+        yanchor: 'top', y: 1.2
+    }]
+  };
+  console.log("Adjusted", adjustedTraces.map(t => { return [t.x.map(x => Math.log(x)), t.y.map(y => Math.pow(y - 1.0894014266398222, -0.25))]; }));
+  for (let x of traces[0].x) { straight.x.push(x); straight.y.push(1.09); straight2.x.push(x); straight2.y.push(1.22); }
+  Plotly.newPlot('mn-vs-n-segmented-convergence-graph', traces.concat(adjustedTraces).concat([straight, straight2]), layout);
+};
+
+
+var createNvsMN_SegmentConvergenceTransform = function() {
+  let traces = [];
+  for (let ells of nVsMNSegmentedConvergence) {
+    let ell = ells.l;
+    let trace = {
+      x: [],
+      y: [],
+      type: 'scatter',
+      name: '$l=' + ell + '$',
+      line: {shape: 'spline'}
+    };
+    for (let data of ells.objs) {
+      trace.x.push(data.n); trace.y.push(Math.pow(data.m_n - 1.0894014266398222 * (1 + 2/ell), -2));
     }
     traces.push(trace);
   }
   var layout = {
-    title: 'Minimum overhead vs n for segmented random hypergraph',
-    xaxis: { title: '$n$', type: 'log' },
+    title: 'Transformed overhead vs n for segmented random hypergraph',
+    xaxis: { title: '$n$' },
     yaxis: { title: 'Overhead' }
   };
-  for (let x of traces[0].x) { straight.x.push(x); straight.y.push(1.09); straight2.x.push(x); straight2.y.push(1.22); }
-  Plotly.newPlot('mn-vs-n-segmented-convergence-graph', traces.concat([straight, straight2]), layout);
+  Plotly.newPlot('mn-vs-n-segmented-convergence-graph-transformed', traces, layout);
 };
 
 var createNvsMN_BandConvergence = function() {
   let traces = [];
+  let adjustedTraces = [];
   let straight = {
     x: [],
     y: [],
@@ -333,18 +381,62 @@ var createNvsMN_BandConvergence = function() {
       name: '$b=' + band + '$',
       line: {shape: 'spline'}
     };
+    let adjusted = $.extend(true, {}, trace);
+    adjusted.visible = false;
     for (let data of bands.objs) {
       trace.x.push(data.n); trace.y.push(data.m_n);
+      adjusted.x.push(data.n); adjusted.y.push(data.m_n * (band / (band + 1)));
+    }
+    traces.push(trace);
+    adjustedTraces.push(adjusted);
+  }
+  let visibilities = Array(traces.length * 2).fill().map((_, i) => i < traces.length);
+  let adjustedVisibilities = visibilities.map(x => !x);
+  for (let i = 0; i < 2; ++i) { visibilities.push(true); adjustedVisibilities.push(true); }
+  var layout = {
+    title: 'Minimum overhead vs n for banded random hypergraph',
+    xaxis: { title: '$n$', type: 'log' },
+    yaxis: { title: 'Overhead', range: [1, 2] },
+    updatemenus: [{
+      buttons: [
+        {args: [{'visible': visibilities}], label: 'Original', method: 'update'},
+        {args: [{'visible': adjustedVisibilities}], label: 'Adjusted', method: 'update'}
+      ],
+        direction: 'left',
+        pad: {'r': 10, 't': 10},
+        showactive: true,
+        type: 'buttons',
+        xanchor: 'left',
+        yanchor: 'top', y: 1.2
+    }]
+  };
+  for (let x of traces[0].x) { straight.x.push(x); straight.y.push(1.09); straight2.x.push(x); straight2.y.push(1.22); }
+  Plotly.newPlot('mn-vs-n-band-convergence-graph', traces.concat(adjustedTraces).concat([straight, straight2]), layout);
+};
+
+
+var createNvsMN_BandConvergenceTransform = function() {
+  let traces = [];
+  for (let bands of nVsMNBandConvergence) {
+    let band = bands.band;
+    let trace = {
+      x: [],
+      y: [],
+      type: 'scatter',
+      name: '$b=' + band + '$',
+      line: {shape: 'spline'}
+    };
+    for (let data of bands.objs) {
+      trace.x.push(data.n); trace.y.push(Math.pow(data.m_n - 1.0894014266398222 * (1 + 1/band), -2));
     }
     traces.push(trace);
   }
   var layout = {
-    title: 'Minimum overhead vs n for banded random hypergraph',
-    xaxis: { title: '$n$', type: 'log' },
-    yaxis: { title: 'Overhead', range: [1, 2] }
+    title: 'Transformed overhead vs n for band random hypergraph',
+    xaxis: { title: '$n$' },
+    yaxis: { title: 'Overhead' }
   };
-  for (let x of traces[0].x) { straight.x.push(x); straight.y.push(1.09); straight2.x.push(x); straight2.y.push(1.22); }
-  Plotly.newPlot('mn-vs-n-band-convergence-graph', traces.concat([straight, straight2]), layout);
+  Plotly.newPlot('mn-vs-n-band-convergence-graph-transformed', traces, layout);
 };
 
 $(document).ready(function() {
@@ -352,4 +444,7 @@ $(document).ready(function() {
   createPvsMNGraph();
   createNvsMN_BasicConvergence();
   createNvsMN_SegmentConvergence();
+  createNvsMN_BandConvergence();
+  createNvsMN_SegmentConvergenceTransform();
+  createNvsMN_BandConvergenceTransform();
 });
