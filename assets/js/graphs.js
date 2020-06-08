@@ -268,6 +268,78 @@ l=140 n=100000 m/n=1.159327027
 l=160 n=100000 m/n=1.161879036
 l=180 n=100000 m/n=1.165571899`));
 
+var mnVsBandForFixedN = collect('n', parseStr(
+`n=30000
+band=1 n=30000 m/n=1.222923934
+band=5 n=30000 m/n=1.358043701
+band=10 n=30000 m/n=1.240697262
+band=15 n=30000 m/n=1.211835718
+band=20 n=30000 m/n=1.204199973
+band=25 n=30000 m/n=1.203495575
+band=30 n=30000 m/n=1.204658778
+band=35 n=30000 m/n=1.207728466
+band=40 n=30000 m/n=1.21080372
+band=50 n=30000 m/n=1.216749757
+band=60 n=30000 m/n=1.223382664
+band=70 n=30000 m/n=1.22906894
+band=80 n=30000 m/n=1.238503655
+band=90 n=30000 m/n=1.243883453
+n=100000
+band=1 n=100000 m/n=1.222245761
+band=5 n=100000 m/n=1.354705651
+band=15 n=100000 m/n=1.191743309
+band=25 n=100000 m/n=1.172497817
+band=30 n=100000 m/n=1.170613615
+band=35 n=100000 m/n=1.170142778
+band=40 n=100000 m/n=1.171213538
+band=45 n=100000 m/n=1.171987043
+band=50 n=100000 m/n=1.173566014
+band=60 n=100000 m/n=1.177345175
+band=70 n=100000 m/n=1.183830762
+band=80 n=100000 m/n=1.187469744
+band=90 n=100000 m/n=1.191319666
+n=300000
+band=1 n=300000 m/n=1.221855664
+band=10 n=300000 m/n=1.219449566
+band=20 n=300000 m/n=1.165402592
+band=35 n=300000 m/n=1.150198323
+band=40 n=300000 m/n=1.148283093
+band=45 n=300000 m/n=1.147921421
+band=50 n=300000 m/n=1.147934251
+band=55 n=300000 m/n=1.148775183
+band=60 n=300000 m/n=1.14942222
+band=65 n=300000 m/n=1.149380585
+band=70 n=300000 m/n=1.150174016
+band=80 n=300000 m/n=1.152370048
+band=90 n=300000 m/n=1.154632665`));
+
+var optimLvsN = parseStr(
+`n=1000 optim_param=20.2 optim_m/n=1.30430821
+n=2000 optim_param=25.2 optim_m/n=1.269632157
+n=5000 optim_param=34.4 optim_m/n=1.2340708
+n=10000 optim_param=41.33333333 optim_m/n=1.209358765
+n=20000 optim_param=49.46666667 optim_m/n=1.189151502
+n=50000 optim_param=65.73333333 optim_m/n=1.166601773
+n=100000 optim_param=85.46666667 optim_m/n=1.152884337
+n=200000 optim_param=105.0666667 optim_m/n=1.141320204
+n=500000 optim_param=147.7333333 optim_m/n=1.129180261
+n=1000000 optim_param=160.8 optim_m/n=1.121642633
+n=2000000 optim_param=182.9333333 optim_m/n=1.115797844`);
+
+var optimBvsN = parseStr(
+`n=1000 optim_param=8.733333333 optim_m/n=1.374528127
+n=2000 optim_param=12.66666667 optim_m/n=1.323151857
+n=5000 optim_param=15.86666667 optim_m/n=1.272235392
+n=10000 optim_param=17.6 optim_m/n=1.242554365
+n=20000 optim_param=22.13333333 optim_m/n=1.216977417
+n=50000 optim_param=27.86666667 optim_m/n=1.187736038
+n=100000 optim_param=35.86666667 optim_m/n=1.170110194
+n=200000 optim_param=42.26666667 optim_m/n=1.155327793
+n=500000 optim_param=56.93333333 optim_m/n=1.139504255
+n=1000000 optim_param=69.6 optim_m/n=1.130118164
+n=2000000 optim_param=85.46666667 optim_m/n=1.122267153
+n=5000000 optim_param=114 optim_m/n=1.114290096`);
+
 var createPvsMNGraph = function() {
   let traces = [];
   let nToIndMap = {};
@@ -525,7 +597,7 @@ var createMNvsL = function() {
   var traces = [];
   for (let ns of mnVsLforFixedN) {
     let n = ns.n;
-    let trace = { x: [], y: [], type: 'scatter', name: '$n=' + n + '$', mode: 'marker', line: {shape: 'spline'}};
+    let trace = { x: [], y: [], type: 'scatter', name: '$n=' + n + '$', mode: 'markers+lines', line: {shape: 'spline'}};
     for (let data of ns.objs) {
       trace.x.push(data.l);
       trace.y.push(data.m_n);
@@ -540,6 +612,69 @@ var createMNvsL = function() {
   Plotly.newPlot("mn-vs-l-fixed-n", traces, layout);
 };
 
+
+var createMNvsBand = function() {
+  var traces = [];
+  for (let ns of mnVsBandForFixedN) {
+    let n = ns.n;
+    let trace = { x: [], y: [], type: 'scatter', name: '$n=' + n + '$', mode: 'markers+lines', line: {shape: 'spline'}};
+    for (let data of ns.objs) {
+      if (data.band < 5) continue;  // No need to put it in, looks ugly
+      trace.x.push(data.band);
+      trace.y.push(data.m_n);
+    }
+    traces.push(trace);
+  }
+  var layout = {
+    title: 'Minimum overhead vs b for fixed n',
+    xaxis: { title: '$b$' },
+    yaxis: { title: 'Overhead' }
+  };
+  Plotly.newPlot("mn-vs-b-fixed-n", traces, layout);
+};
+
+var createOptimLvsN = function() {
+  var traceL = { x: [], y: [], type: 'scatter', name: '$\\ell_\\text{optim}$', line: {shape: 'spline'}};
+  var traceM_N = { x: [], y: [], type: 'scatter', name: 'Min. overhead', line: {shape: 'spline'}, yaxis: 'y2' };
+  var straight = { x: [], y: [], type: 'scatter', name: 'Limiting val.', line: {dash: 'dash'}, yaxis: 'y2', hoverinfo: 'skip' };
+  for (let data of optimLvsN) {
+    traceL.x.push(data.n);
+    traceM_N.x.push(data.n);
+    traceL.y.push(data.optim_param);
+    traceM_N.y.push(data.optim_m_n);
+    straight.x.push(data.n);
+    straight.y.push(1.089);
+  }
+  var layout = {
+    title: "Optimal l vs n",
+    xaxis: { title: '$n$', type: 'log' },
+    yaxis: { title: '$\\ell$' },
+    yaxis2: { title: 'Overhead', side: 'right', overlaying: 'y' }
+  };
+  Plotly.newPlot("l-optim-vs-n", [traceL, traceM_N, straight], layout);
+};
+
+var createOptimBvsN = function() {
+  var traceB = { x: [], y: [], type: 'scatter', name: '$b_\\text{optim}$', line: {shape: 'spline'}};
+  var traceM_N = { x: [], y: [], type: 'scatter', name: 'Min. overhead', line: {shape: 'spline'}, yaxis: 'y2' };
+  var straight = { x: [], y: [], type: 'scatter', name: 'Limiting val.', line: {dash: 'dash'}, yaxis: 'y2', hoverinfo: 'skip' };
+  for (let data of optimBvsN) {
+    traceB.x.push(data.n);
+    traceM_N.x.push(data.n);
+    traceB.y.push(data.optim_param);
+    traceM_N.y.push(data.optim_m_n);
+    straight.x.push(data.n);
+    straight.y.push(1.089);
+  }
+  var layout = {
+    title: "Optimal b vs n",
+    xaxis: { title: '$n$', type: 'log' },
+    yaxis: { title: '$b$' },
+    yaxis2: { title: 'Overhead', side: 'right', overlaying: 'y' }
+  };
+  Plotly.newPlot("b-optim-vs-n", [traceB, traceM_N, straight], layout);
+};
+
 $(document).ready(function() {
   console.log("Starting graphs...");
   createPvsMNGraph();
@@ -548,4 +683,8 @@ $(document).ready(function() {
   createNvsMN_BandConvergence();
   createNvsMN_SegmentConvergenceTransform();
   createNvsMN_BandConvergenceTransform();
+  createMNvsL();
+  createMNvsBand();
+  createOptimLvsN();
+  createOptimBvsN();
 });

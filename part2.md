@@ -102,8 +102,8 @@ We'll call this a limited bandwidth graph, or a band graph for short. Instead of
 Just as we have the peelability threshold for ordinary random hypergraphs $$c_3^{-1}$$, we can also define the constants $$f_{3}^{-1}$$,
 the peelability threshold for fuse graphs, and $$h_{3}^{-1}$$, the peelability threshold for band graphs. First, it is not actually clear that these definitions make sense. The constructions
 of fuse graphs and band graphs require additional parameters $$\ell$$ and $$b$$, so shouldn't we define them as $$f_{3,\ell}^{-1}$$? Actually, it turns out that if we define $$f_3^{-1}$$ to
-be the threshold as $$\ell\rightarrow\infty$$, then the threshold for any finite $$\ell$$ is simply $$f_3^{-1}\cdot\frac{\ell+2}{\ell}$$. This is proven in the paper, and is essentially an
-artifact of the finiteness of our segments. Similarly, we can define $$h_3^{-1}$$ to be the
+be the threshold as $$\ell\rightarrow\infty$$, then the threshold for any finite $$\ell$$ is simply $$f_3^{-1}\cdot\frac{\ell+2}{\ell}$$ (or more generally the ratio is $$(\ell+k-1)/\ell$$.
+This is proven in the paper, and is essentially an artifact of the finiteness of our segments. Similarly, we can define $$h_3^{-1}$$ to be the
 limiting threshold as $$b\rightarrow\infty$$, so that for finite $$b$$, we have $$h_{3,b}^{-1}=h_3^{-1}\cdot\frac{b+1}{b}$$.
 
 It seems intuitive that $$f_{3}^{-1} \geq c_{3}^{*-1}$$ and similarly for $$h_3^{-1}$$. In other words, it is reasonable that the orientability overhead thresholds for basic random hypergraphs
@@ -144,7 +144,7 @@ and by $$n > 10000$$, we are already at an overhead of only $$1.224$$. On the ot
 The adjusted graphs have the overheads multiplied by $$\ell/(\ell+2)$$ and $$b/(b+1)$$ respectively, so that all the graphs are converging to the same value.
 A reasonable value of $$\ell$$ or $$b$$ is one that works even for large $$n$$ e.g. $$\ell=100$$, or $$b=25$$. The graphs show that even at $$n=10^4$$,
 they aren't that close yet to converging. Moreover, for $$n \lt 10^4$$, because of the "finiteness" artifacts (i.e. the thresholds are multiplied by $$1+2/\ell$$
-or $$1+1/b$$), for $$n \lt 10^4$$, no value of $$\ell$$ or $$b$$ gives better results than the ordinary random construction.
+or $$1+1/b$$), no value of $$\ell$$ or $$b$$ gives better results than the ordinary random construction.
 
 If you play with the numbers and examine these graphs for long enough, you might eventually see a pattern for the convergence rate. It seems like if we let $$D=m/n-f_k(1+2/\ell)$$
 or $$D=m/n-h_k(1+1/b)$$ be the distance from convergence, then $$D=\Theta\left(n^{-1/2}\right)$$. To give numerical evidence for our claim, here is the same two graphs but the distance from
@@ -204,6 +204,26 @@ How should we optimize $$\ell$$ or $$b$$ given $$n$$? We can plot $$m/n$$ agains
 </div>
 
 <div id="mn-vs-b-fixed-n">
+</div>
+
+As you can see, for any $$n$$ there is a value of $$\ell$$ or $$b$$ which minimizes the overhead. However, as $$n$$ grows larger, getting the precise optimum
+seems to matter less and less. On the other hand, as $$n$$ gets very large, the probability of success as a function of $$m/n$$ becomes more and more step-like,
+so even a small change in the minimum overhead can dramatically shift the process from working to not working. The overall shape of the graph makes sense.
+For a fixed $$n$$, as $$\ell\rightarrow k$$, the process converges to simply making an ordinary random hypergraph the usual way, which requires a high overhead. 
+On the other hand, as $$\ell\rightarrow n$$, the required table size approaches $$O(n^2)$$, because the segment size approaches $$1$$, so every element has
+to pick a different starting segment in order to avoid collisions, and we need to defeat the birthday paradox. Thus, as $$\ell\rightarrow n$$, $$m/n\rightarrow n$$
+as well, which is large. Hence, somewhere in between the overhead changes from decreasing to increasing, creating a minimum. Similarly, for the band graph,
+the limiting case $$b=1$$ is the case of the ordinary random hypergraph and the case $$b=n/k$$ is the case where birthday collisions are inevitable when $$m=O(n)$$.
+Thus, for the band graphs as well, there is an optimal $$b$$ for each $$n$$ between $$1$$ and $$n/k$$.
+
+We can define functions $$\ell_{\text{optim}}(n)$$ as the value of $$\ell$$ that minimizes the necessary overhead to achieve a probability of peelability of $$1/2$$
+for a given $$n$$. Similarly, define $$b_\text{optim}(n)$$ as the optimal $$b$$ as a function of $$n$$. We can plot $$b_\text{optim}$$ and $$\ell_\text{optim}$$ as functions
+of $$n$$, and the corresponding overheads at the optimal values.
+
+<div id="l-optim-vs-n">
+</div>
+
+<div id="b-optim-vs-n">
 </div>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
