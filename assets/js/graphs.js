@@ -21,6 +21,7 @@ var collect = (param, data) => {
       curObj.objs.push(d);
     }
   }
+  result.push(curObj);
   return result;
 };
 
@@ -208,6 +209,65 @@ n=300000 m/n=1.170123977
 n=1000000 m/n=1.136815439
 n=3000000 m/n=1.120209357`));
 
+var mnVsLforFixedN = collect('n', parseStr(
+`n=10000
+l=10 n=10000 m/n=1.305232227
+l=21 n=10000 m/n=1.229326957
+l=24 n=10000 m/n=1.222528051
+l=27 n=10000 m/n=1.214889468
+l=30 n=10000 m/n=1.214100356
+l=33 n=10000 m/n=1.210996001
+l=36 n=10000 m/n=1.209660731
+l=39 n=10000 m/n=1.211428622
+l=42 n=10000 m/n=1.210414039
+l=45 n=10000 m/n=1.210481731
+l=48 n=10000 m/n=1.210208661
+l=51 n=10000 m/n=1.213693988
+l=54 n=10000 m/n=1.211082437
+l=57 n=10000 m/n=1.213914094
+l=60 n=10000 m/n=1.217718277
+l=80 n=10000 m/n=1.228794125
+l=100 n=10000 m/n=1.240035929
+l=120 n=10000 m/n=1.255228492
+l=140 n=10000 m/n=1.288046896
+l=160 n=10000 m/n=1.321656043
+l=180 n=10000 m/n=1.320074611
+n=30000
+l=20 n=30000 m/n=1.221402699
+l=30 n=30000 m/n=1.193499288
+l=35 n=30000 m/n=1.186716318
+l=40 n=30000 m/n=1.182601212
+l=45 n=30000 m/n=1.180850643
+l=50 n=30000 m/n=1.178803598
+l=55 n=30000 m/n=1.176683442
+l=60 n=30000 m/n=1.177978448
+l=65 n=30000 m/n=1.178530779
+l=70 n=30000 m/n=1.18004803
+l=80 n=30000 m/n=1.181869471
+l=90 n=30000 m/n=1.185277522
+l=100 n=30000 m/n=1.187783163
+l=110 n=30000 m/n=1.194648936
+l=120 n=30000 m/n=1.195989147
+l=140 n=30000 m/n=1.202901903
+l=160 n=30000 m/n=1.210116743
+l=180 n=30000 m/n=1.216989902
+n=100000
+l=20 n=100000 m/n=1.215624239
+l=40 n=100000 m/n=1.166840913
+l=60 n=100000 m/n=1.155302026
+l=80 n=100000 m/n=1.15350081
+l=85 n=100000 m/n=1.153454862
+l=90 n=100000 m/n=1.153821792
+l=95 n=100000 m/n=1.153202083
+l=100 n=100000 m/n=1.154418186
+l=105 n=100000 m/n=1.154012092
+l=110 n=100000 m/n=1.154970946
+l=115 n=100000 m/n=1.155739833
+l=120 n=100000 m/n=1.156244592
+l=140 n=100000 m/n=1.159327027
+l=160 n=100000 m/n=1.161879036
+l=180 n=100000 m/n=1.165571899`));
+
 var createPvsMNGraph = function() {
   let traces = [];
   let nToIndMap = {};
@@ -329,6 +389,15 @@ var createNvsMN_SegmentConvergence = function() {
 
 var createNvsMN_SegmentConvergenceTransform = function() {
   let traces = [];
+  let straight = {
+    x: [],
+    y: [],
+    type: 'scatter',
+    mode: 'lines',
+    name: 'Slope -1/2 ref.',
+    line: {dash: 'dash'},
+    hoverinfo: 'skip'
+  };
   for (let ells of nVsMNSegmentedConvergence) {
     let ell = ells.l;
     let trace = {
@@ -336,19 +405,21 @@ var createNvsMN_SegmentConvergenceTransform = function() {
       y: [],
       type: 'scatter',
       name: '$l=' + ell + '$',
-      line: {shape: 'spline'}
+      line: {shape: 'spline'},
+      visible: ell > 25 ? true : 'legendonly'
     };
     for (let data of ells.objs) {
-      trace.x.push(data.n); trace.y.push(Math.pow(data.m_n - 1.0894014266398222 * (1 + 2/ell), -2));
+      trace.x.push(data.n); trace.y.push(data.m_n - 1.0894014266398222 * (1 + 2/ell));
+      straight.x.push(data.n); straight.y.push(10 * Math.pow(data.n, -0.5));
     }
     traces.push(trace);
   }
   var layout = {
-    title: 'Transformed overhead vs n for segmented random hypergraph',
-    xaxis: { title: '$n$' },
-    yaxis: { title: 'Overhead' }
+    title: 'Log overhead vs n for segmented hypergraph',
+    xaxis: { title: '$n$', type: 'log' },
+    yaxis: { title: 'Distance from convergence', type: 'log' }
   };
-  Plotly.newPlot('mn-vs-n-segmented-convergence-graph-transformed', traces, layout);
+  Plotly.newPlot('mn-vs-n-segmented-convergence-graph-transformed', traces.concat([straight]), layout);
 };
 
 var createNvsMN_BandConvergence = function() {
@@ -417,6 +488,15 @@ var createNvsMN_BandConvergence = function() {
 
 var createNvsMN_BandConvergenceTransform = function() {
   let traces = [];
+  let straight = {
+    x: [],
+    y: [],
+    type: 'scatter',
+    mode: 'lines',
+    name: 'Slope -1/2 ref.',
+    line: {dash: 'dash'},
+    hoverinfo: 'skip'
+  };
   for (let bands of nVsMNBandConvergence) {
     let band = bands.band;
     let trace = {
@@ -424,19 +504,40 @@ var createNvsMN_BandConvergenceTransform = function() {
       y: [],
       type: 'scatter',
       name: '$b=' + band + '$',
-      line: {shape: 'spline'}
+      line: {shape: 'spline'},
+      visible: band > 12 ? true : 'legendonly'
     };
     for (let data of bands.objs) {
-      trace.x.push(data.n); trace.y.push(Math.pow(data.m_n - 1.0894014266398222 * (1 + 1/band), -2));
+      trace.x.push(data.n); trace.y.push(data.m_n - 1.0894014266398222 * (1 + 1/band));
+      straight.x.push(data.n); straight.y.push(10 * Math.pow(data.n, -0.5));
     }
     traces.push(trace);
   }
   var layout = {
     title: 'Transformed overhead vs n for band random hypergraph',
-    xaxis: { title: '$n$' },
+    xaxis: { title: '$n$', type: 'log' },
+    yaxis: { title: 'Distance from convergence', type: 'log' }
+  };
+  Plotly.newPlot('mn-vs-n-band-convergence-graph-transformed', traces.concat(straight), layout);
+};
+
+var createMNvsL = function() {
+  var traces = [];
+  for (let ns of mnVsLforFixedN) {
+    let n = ns.n;
+    let trace = { x: [], y: [], type: 'scatter', name: '$n=' + n + '$', mode: 'marker', line: {shape: 'spline'}};
+    for (let data of ns.objs) {
+      trace.x.push(data.l);
+      trace.y.push(data.m_n);
+    }
+    traces.push(trace);
+  }
+  var layout = {
+    title: 'Minimum overhead vs l for fixed n',
+    xaxis: { title: '$l$' },
     yaxis: { title: 'Overhead' }
   };
-  Plotly.newPlot('mn-vs-n-band-convergence-graph-transformed', traces, layout);
+  Plotly.newPlot("mn-vs-l-fixed-n", traces, layout);
 };
 
 $(document).ready(function() {

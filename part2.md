@@ -147,8 +147,8 @@ they aren't that close yet to converging. Moreover, for $$n \lt 10^4$$, because 
 or $$1+1/b$$), for $$n \lt 10^4$$, no value of $$\ell$$ or $$b$$ gives better results than the ordinary random construction.
 
 If you play with the numbers and examine these graphs for long enough, you might eventually see a pattern for the convergence rate. It seems like if we let $$D=m/n-f_k(1+2/\ell)$$
-or $$D=m/n-h_k(1+1/b)$$ be the distance from convergence, then $$D=\Theta\left(n^{-1/2}\right)$$. To give numerical evidence for our claim, here is the same two graphs but with the overhead transformed
-by the mapping $$m/n \mapsto (m/n - T)^{-1/2}$$, where $$T$$ is the appropriate limiting value for the particular parameters:
+or $$D=m/n-h_k(1+1/b)$$ be the distance from convergence, then $$D=\Theta\left(n^{-1/2}\right)$$. To give numerical evidence for our claim, here is the same two graphs but the distance from
+convergence plotted against $$n$$ in a log-log plot. For reference, a line of slope $$-1/2$$ is given to compare.
 
 <div id="mn-vs-n-segmented-convergence-graph-transformed">
 </div>
@@ -157,7 +157,8 @@ by the mapping $$m/n \mapsto (m/n - T)^{-1/2}$$, where $$T$$ is the appropriate 
 <div id="mn-vs-n-band-convergence-graph-transformed">
 </div>
 
-<!-- TODO: use better data, ideally linearly spaced, not logarithmically spaced e.g. n=10k-20k -->
+The small $$b$$ and $$\ell$$ values don't seem to exhibit the same shape, so perhaps the convergence rate is $$\Theta\left(n^{-1/2}\right)$$ for $$b \gg k$$ and $$\ell \gg k$$.
+
 
 # Methods
 
@@ -182,12 +183,12 @@ interpret that as being at the parameter $$x = (n - N/2)\Delta x$$. An iteration
 If there are $$n$$ tokens in the left box, the probability that we move down by $$\Delta x$$ should be $$P(x) = Cx+1/2$$. Indeed, the probability is the probability that
 we pick a token from the left box, which occurs with probability
 
-$$\frac{n}{N} = C\Delta x n = C\Delta x n - C\Delta x N / 2 + C\Delta x N / 2 = Cx + 1/2 = P(x) $$
+$$\frac{n}{N} = C\Delta x n = C\Delta x n - \frac{C\Delta x N}{2} + \frac{C\Delta x N}{2} = Cx + \frac{1}{2} = P(x) $$
 
 It is clear, however, that in the limit, if we treat the tokens as distinct, every token has an equal chance of being in either box by symmetry.
 This is the invariant distribution. Therefore, the ultimate distribution of the number of tokens in the left box is $$n\sim\text{Binom}(N, 1/2)$$. Since this has
-expectation $$1/2$$, we have $$\mathbb{E}(x) = (N/2 - N/2)\Delta x = 0$$, so our estimator is unbiased. Moreover, $$\text{Var}[n] = N/4$$. Therefore,
-since $$x = (n - N/2)\Delta x$$, we have $$\text{Var}[x] = \Var[n\Delta x] = N\Delta x^2/4 = \Delta x / (4C)$$. Thus, the standard deviation is $$\sqrt{\Delta x/(4C)}$$.
+expectation $$N/2$$, and since $$x = (n - N/2)\Delta x$$, we have $$\mathbb{E}(x) = (N/2 - N/2)\Delta x = 0$$, so our estimator is unbiased. Moreover, $$\text{Var}[n] = N/4$$. Therefore,
+we have $$\text{Var}[x] = \Var[n\Delta x] = N\Delta x^2/4 = \Delta x / (4C)$$. Thus, the standard deviation is $$\sqrt{\Delta x/(4C)}$$.
 
 In our simulations, we used $$1000$$ iterations, and a step rate that was annealed exponentially based on how close to half of the last $$32$$ simulations were a success.
 Ultimately, an estimate for the average step rate near $$1/2$$ is $$1.3\times 10^{-5}$$, although it would be as high as $$0.01$$ at the beginning of the simulation.
@@ -206,7 +207,7 @@ How should we optimize $$\ell$$ or $$b$$ given $$n$$? We can plot $$m/n$$ agains
 </div>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}"></script>
+<script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}" async></script>
 
 
 
