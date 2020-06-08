@@ -508,7 +508,7 @@ element is when the size of the list is $$1$$. In this case, we can easily retri
 the information we want. Thus, we have created "lists" that we can use in the hash table which use $$O(1)$$ memory and support $$O(1)$$ deletion and singleton retrieval.
 
 As a last consideration, in order to truly minimize our memory usage, we have to minimize $$m$$, the table size. What is the smallest table size can we choose
-while still allowing the construction to succeed in a reasonable time? While we proved that $$m=2n$$ is enough (and this is good enough for the asymptotic bound),
+while still allowing the construction to succeed in a reasonable time? While we proved that $$m=(2+\epsilon)kn=(6+\epsilon)n$$ is enough when $$k=3$$ (and this is good enough for the asymptotic bound),
 a closer theoretical analysis or emperical observations will show that $$m=1.23n$$ is about the minimum you can get away with. Thus, with a false positive rate of $$\epsilon$$,
 we need $$1.23\left(\log R + \log\epsilon^{-1}\right)$$ bits per element for an immutable filter. Compare this to our wish of $$\log R$$ bits per element when we were
 wishing that all the books were simply titled $$0, 1, \dots n-1$$, and I'd say we came surprisingly close! In fact, a theoretical lower bound is that we need at least

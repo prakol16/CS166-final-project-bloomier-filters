@@ -104,7 +104,7 @@ the peelability threshold for fuse graphs, and $$h_{3}^{-1}$$, the peelability t
 of fuse graphs and band graphs require additional parameters $$\ell$$ and $$b$$, so shouldn't we define them as $$f_{3,\ell}^{-1}$$? Actually, it turns out that if we define $$f_3^{-1}$$ to
 be the threshold as $$\ell\rightarrow\infty$$, then the threshold for any finite $$\ell$$ is simply $$f_3^{-1}\cdot\frac{\ell+2}{\ell}$$. This is proven in the paper, and is essentially an
 artifact of the finiteness of our segments. Similarly, we can define $$h_3^{-1}$$ to be the
-limiting threshold as $$b\rightarrow\infty$$, so that for finite $$b$$, we have $$h_{3,z}^{-1}=h_3^{-1}\cdot\frac{b+1}{b}$$.
+limiting threshold as $$b\rightarrow\infty$$, so that for finite $$b$$, we have $$h_{3,b}^{-1}=h_3^{-1}\cdot\frac{b+1}{b}$$.
 
 It seems intuitive that $$f_{3}^{-1} \geq c_{3}^{*-1}$$ and similarly for $$h_3^{-1}$$. In other words, it is reasonable that the orientability overhead thresholds for basic random hypergraphs
 are still lower bounds for the peelability of these new hypergraphs. Remember, there is no way we can peel the graph if we can't even find an orientation! Here is a proof sketch: first, notice that if we glue the ends of the vertices together so that the last $$k$$ segments and the first $$k$$ segments are considered the same, then the distribution of edges among vertices looks essentially the same as that of a completely random hypergraph. In particular, since we lose the whole benefit of being able to burn from the edges first, every vertex has the same expected degree. To make this rigorous, we would need the notion of the random weak limit of a hypergraph, which is beyond our scope here. Therefore, if we have an edge density above $$c_k^*$$
@@ -196,6 +196,14 @@ to $$1$$ within a change of $$0.02$$ of the parameter $$m/n$$). Therefore, this 
 the estimates might be better since $$C$$ is larger than estimated for many of our simulations, especially when $$n$$ is large.
 
 # Optimizing $$\ell$$ and $$b$$
+
+How should we optimize $$\ell$$ or $$b$$ given $$n$$? We can plot $$m/n$$ against $$\ell$$ and $$b$$ for various fixed values of $$n$$:
+
+<div id="mn-vs-l-fixed-n">
+</div>
+
+<div id="mn-vs-b-fixed-n">
+</div>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}"></script>
