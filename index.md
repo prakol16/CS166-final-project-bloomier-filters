@@ -407,7 +407,7 @@ $$
  \sum_{s=1}^n \binom{n}{s} \binom{m}{\lfloor ks/2 \rfloor} \left( \frac{\lfloor ks/2 \rfloor}{m} \right)^{ks}
 $$
 
-Where does this expression come from? First, note that $$s$$ iterates from $$1$$ to $$n$$, representing all possible sizes of $$\vert V\vert$$, the size of some subset of the left vertices. $$\binom{n}{s}$$ obviously counts the number of ways to choose a subset of size $$s$$ from the $$n$$ left vertices. On the other side, $$\binom{m}{\lfloor ks/2 \rfloor}$$ counts the number of ways to choose $$\lfloor ks/2 \rfloor$$ vertices from the $$m$$ vertices on the right. The reason we want to choose $$\lfloor ks/2 \rfloor$$ follows from the discussion above, since having more than $$\lfloor ks/2 \rfloor$$ neighbors on the right automatically means that this subset does not get stuck. Finally, $$\left( \frac{\lfloor ks/2 \rfloor}{m} \right)^{ks}$$ measure the probability that each of the $$ks$$ edges emanating from the $$s$$ vertices on the left does indeed fall into the $$\lfloor ks/2 \rfloor$$ sized subset of neighbors on the right.
+Where does this expression come from? First, note that $$s$$ iterates from $$1$$ to $$n$$, representing all possible sizes of $$\vert V\vert$$, the size of some subset of the left vertices. $$\binom{n}{s}$$ obviously counts the number of ways to choose a subset of size $$s$$ from the $$n$$ left vertices. On the other side, $$\binom{m}{\lfloor ks/2 \rfloor}$$ counts the number of ways to choose $$\lfloor ks/2 \rfloor$$ vertices from the $$m$$ vertices on the right. The reason we want to choose $$\lfloor ks/2 \rfloor$$ follows from the discussion above, since having more than $$\lfloor ks/2 \rfloor$$ neighbors on the right automatically means that this subset does not get stuck. Finally, $$\left( \frac{\lfloor ks/2 \rfloor}{m} \right)^{ks}$$ measures the probability that each of the $$ks$$ edges emanating from the $$s$$ vertices on the left does indeed fall into the $$\lfloor ks/2 \rfloor$$ sized subset of neighbors on the right.
 
 Note that the summation above does indeed overshoot the probability, since a single unsuccessful graph may fail in multiple ways. For example, two distinct subsets of the left vertices of $$s$$ may both have less than $$\lfloor ks/2 \rfloor$$ neighbors. Although this is just one failed graph, it is counted at least twice in our summation.
 
@@ -429,9 +429,10 @@ $$
 $$
 =  \sum_{s=1}^n \left(\frac{e}{s}\right)^s \left(\frac{e^{k/2}}{(2c)^{k/2}}\right)^s \left( \frac{s}{n} \right)^{ks/2}.
 $$
+
 Since $$c > 2$$, it is clear that if we take $$n$$ sufficiently large, we can bound the above sum by
 $$
-\sum_{s=1}^{\infty} \left(\frac{e^{k/2}}{(4)^{k/2}}\right)^s
+\sum_{s=1}^{\infty} \left(\frac{e^{k/2}}{4^{k/2}}\right)^s
 $$
 which is a value that is strictly less than $$1$$.
 
