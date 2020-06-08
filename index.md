@@ -420,11 +420,20 @@ the term $$\frac{k^k}{k!}$$---it is less than $$e^k$$ because every term in the
 Taylor series is positive. This gives $$\frac{k^k}{k!}<e^k$$, or $$\frac{1}{k!}
 < \left({} \frac{e}{k} \right)^k$$. Putting everything together, we conclude $$\binom{n}{k}\le \left({} \frac{ne}{k} \right)^k$$.
 
-Stirlings formula, which tells us that $$n! \approx \sqrt{2\pi n} \left(\frac{n}{e}\right)^n$$, which means $$n! < \left(\frac{n}{e}\right)^n$$.
+In the original Bloomier Filter paper, they take $$m = ckn$$ for a some constant $$c>2$$. Bounding the binomial coefficients using the algebra above, 
 
+$$
+\sum_{s=1}^n \binom{n}{s} \binom{m}{\lfloor ks/2 \rfloor} \left( \frac{\lfloor ks/2 \rfloor}{m} \right)^{ks} \leq  \sum_{s=1}^n \left(\frac{en}{s}\right)^s \left(\frac{2ecn}{s}\right)^{ks/2} \left( \frac{s}{2cn} \right)^{ks}
+$$
 
-
-
+$$
+=  \sum_{s=1}^n \left(\frac{e}{s}\right)^s \left(\frac{e^{k/2}}{(2c)^{k/2}}\right)^s \left( \frac{s}{n} \right)^{ks/2}.
+$$
+Since $$c > 2$$, it is clear that if we take $$n$$ sufficiently large, we can bound the above sum by
+$$
+\sum_{s=1}^{\infty} \left(\frac{e^{k/2}}{(4)^{k/2}}\right)^s
+$$
+which is a value that is strictly less than $$1$$.
 
 
 
