@@ -3,8 +3,9 @@ comments: true
 title: Bloomier Filters (Part 2)
 mathjax: true
 ---
+[<i class="arrow arrow-left"></i>Part 1](../)
 
-# Hypergraphs
+## Hypergraphs
 
 So far, we've been visualizing our hash functions and elements as a bipartite graph, with
 $$n$$ books on the left and $$m$$ hashes on the right. This is fine, but to bring us more
@@ -51,7 +52,7 @@ The reverse ratio, $$m/n$$, we'll call the *overhead* because it is the ratio of
 of books we are actually storing. A concise statement of our goal is to find a construction of a hypergraph
 that minimizes the overhead while maintaining a high probability of being peelable.
 
-# A 0-1 Law for Random Graphs
+## A 0-1 Law for Random Graphs
 
 In 1963, Erdős and Rényi published a famous result that essentially showed that there was only one random graph.
 More specifically, if we create a random graph with countably infinitely many vertices
@@ -82,7 +83,7 @@ of a random hypergraph, which is the minimum overhead we need to ensure orientab
 we clearly have $$c_3^{-1} \geq c_3^{*-1}$$. But maybe, if we could construct our graphs in a cleverer way, might we reduce our peelability threshold?
 Could we go so far as to have a peelability threshold equal to the orientability threshold?
 
-# Fuse graphs and Band graphs
+## Fuse graphs and Band graphs
 
 The construction of a "fuse graph" is introduced in the paper by Dietzfelbinger et al.
 To construct a fuse graph, divide your hash space (the vertices) into $$\ell$$ "segments." Rather than assigning vertices to edges at random (based on the hash value), you pick one of the first $$\ell - 2$$ (or more generally $$\ell - k + 1$$) segments. Then, you pick one vertex randomly from each of the 3 consecutive segments starting at that slot. That's all you have to do -- it's actually a very easy and minor modification from the original algorithm.
@@ -117,7 +118,7 @@ is actually really close to the theoretical upper bound -- only $$c_k^* - 10^{-5
 They conjecture that with the alternative construction, you actually get $$h_k=c_k^*$$. In other words, in the alternative construction, 
 the conjecture is that a limited bandwidth hypergraph is peelable with the same probability that it is orientable (for large enough $$n$$).
 
-# Examining the convergence rate
+## Examining the convergence rate
 
 The paper does a good job of presenting the theoretical results of fuse graphs as $$n\rightarrow\infty$$, but we want to investigate the case where
 $$n$$ is finite and not necessarily sufficiently large. First we should look at how fast the convergence is so we have a numerical estimate on how large is "sufficiently large,"
@@ -160,7 +161,7 @@ convergence plotted against $$n$$ in a log-log plot. For reference, a line of sl
 The small $$b$$ and $$\ell$$ values don't seem to exhibit the same shape, so perhaps the convergence rate is $$\Theta\left(n^{-1/2}\right)$$ for $$b \gg k$$ and $$\ell \gg k$$.
 
 
-# Methods
+## Methods
 
 So far, we have been using graphs that, given $$n$$, show the value of $$m/n$$ that marks the boundary where the probability that a hypergraph with those
 parameters is peelable is exactly $$1/2$$. How did we arrive at those numbers? What are the error bounds? We will answer those questions in this section.
@@ -196,7 +197,7 @@ Moreover, $$C$$ can be conservatively bounded below at $$50$$ for $$n\geq 10^4$$
 to $$1$$ within a change of $$0.02$$ of the parameter $$m/n$$). Therefore, this results in a standard deviation for our estimates of $$2.5\times 10^{-4}$$. In practice,
 the estimates might be better since $$C$$ is larger than estimated for many of our simulations, especially when $$n$$ is large.
 
-# Optimizing $$\ell$$ and $$b$$
+## Optimizing $$\ell$$ and $$b$$
 
 How should we optimize $$\ell$$ or $$b$$ given $$n$$? We can plot $$m/n$$ against $$\ell$$ and $$b$$ for various fixed values of $$n$$:
 
@@ -240,9 +241,9 @@ Obviously, these are just numerical approximations,
 though they match the data quite accurately. If we extrapolate these functions, then in practice, the segmented graph is better than the band graph until $$n=10^{18}$$,
 so essentially for any reasonable data.
 
-# Conclusion
+## Conclusion
 
-# Sources
+## Sources
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}" async></script>

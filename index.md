@@ -3,7 +3,9 @@ comments: true
 title: Bloomier Filters (Part 1)
 mathjax: true
 ---
-
+<p style="float: right;" markdown="1">
+[Part 2<i class="arrow arrow-right"></i>](part2)
+</p>
 ## Motivation
 
 Suppose you are a librarian, collecting 20th-century literature. Not in a physical
