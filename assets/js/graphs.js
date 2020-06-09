@@ -675,6 +675,45 @@ var createOptimBvsN = function() {
   Plotly.newPlot("b-optim-vs-n", [traceB, traceM_N, straight], layout);
 };
 
+var createOptimLvsNFit = function() {
+  var traceL = { x: [], y: [], type: 'scatter', name: '$\\ell_\\text{optim}$', line: {shape: 'spline'}};
+  var traceFit = { x: [], y: [], type: 'scatter', name: 'Best fit', line: {shape: 'spline', dash: 'dash'} }; 
+  for (let data of optimLvsN) {
+    traceL.x.push(data.n);
+    traceL.y.push(data.optim_param);
+    traceFit.x.push(data.n);
+    const a = 2.54433, b = -32.5, c = 124.128;
+    let x = Math.log(data.n); 
+    traceFit.y.push(a*x*x + b*x + c);
+  }
+  var layout = {
+    title: "Optimal l vs n, with best fit",
+    xaxis: { title: '$n$', type: 'log' },
+    yaxis: { title: '$\\ell$' },
+  };
+  Plotly.newPlot("l-optim-fit", [traceL, traceFit], layout);
+};
+
+var createOptimBvsNFit = function() {
+  var traceB = { x: [], y: [], type: 'scatter', name: '$b_\\text{optim}$', line: {shape: 'spline'}};
+  var traceFit = { x: [], y: [], type: 'scatter', name: 'Best fit', line: {shape: 'spline', dash: 'dash'} }; 
+  for (let data of optimBvsN) {
+    traceB.x.push(data.n);
+    traceB.y.push(data.optim_param);
+    traceFit.x.push(data.n);
+    const a = 1.64468, b = -25.46, c = 110.427;
+    let x = Math.log(data.n); 
+    traceFit.y.push(a*x*x + b*x + c);
+  }
+  var layout = {
+    title: "Optimal b vs n, with best fit",
+    xaxis: { title: '$n$', type: 'log' },
+    yaxis: { title: '$b$' },
+  };
+  Plotly.newPlot("b-optim-fit", [traceB, traceFit], layout);
+};
+
+
 $(document).ready(function() {
   console.log("Starting graphs...");
   createPvsMNGraph();
@@ -687,4 +726,6 @@ $(document).ready(function() {
   createMNvsBand();
   createOptimLvsN();
   createOptimBvsN();
+  createOptimLvsNFit();
+  createOptimBvsNFit();
 });

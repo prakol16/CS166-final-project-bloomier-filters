@@ -8,7 +8,7 @@ mathjax: true
 
 So far, we've been visualizing our hash functions and elements as a bipartite graph, with
 $$n$$ books on the left and $$m$$ hashes on the right. This is fine, but to bring us more
-in line with the terminology of [this paper](https://arxiv.org/pdf/1907.04749.pdf)
+in line with the terminology of [this paper](https://arxiv.org/pdf/1907.04749.pdf) ("Dense Peelable Random Uniform Hypergraphs")
 by Dietzfelbinger et al. (which forms most of the basis of this part),
 we will transition to the terminology of "hypergraphs." A hypergraph
 is simply a generalization of a graph where edges can connect more than two vertices. In other words,
@@ -108,7 +108,7 @@ limiting threshold as $$b\rightarrow\infty$$, so that for finite $$b$$, we have 
 
 It seems intuitive that $$f_{3}^{-1} \geq c_{3}^{*-1}$$ and similarly for $$h_3^{-1}$$. In other words, it is reasonable that the orientability overhead thresholds for basic random hypergraphs
 are still lower bounds for the peelability of these new hypergraphs. Remember, there is no way we can peel the graph if we can't even find an orientation! Here is a proof sketch: first, notice that if we glue the ends of the vertices together so that the last $$k$$ segments and the first $$k$$ segments are considered the same, then the distribution of edges among vertices looks essentially the same as that of a completely random hypergraph. In particular, since we lose the whole benefit of being able to burn from the edges first, every vertex has the same expected degree. To make this rigorous, we would need the notion of the random weak limit of a hypergraph, which is beyond our scope here. Therefore, if we have an edge density above $$c_k^*$$
-and glue the ends of the graph together, with probability $1$ in the limit, we are not orientable. Actually, there is an even stronger claim -- the number of vertices we can't find orientations for is linear in $$n$$. It is at least $$\epsilon n$$ for some small $$\epsilon > 0$$ depending on how close we are to the orientability threshold. Therefore, even when we unglue those vertices, if our segment lengths are small enough compared to $$n$$ (i.e. for large enough $$\ell$$), we can only add at most the ends to the orientable vertices, which is not enough to make the whole thing orientable. Therefore, $$f_k \leq c_k^*$$. Essentially, the same trick of glueing the ends works for band graphs as well.
+and glue the ends of the graph together, with probability $1$ in the limit, we are not orientable. Actually, there is an even stronger claim -- the number of vertices we can't find orientations for is linear in $$n$$. It is at least $$\epsilon n$$ for some small $$\epsilon > 0$$ depending on how close we are to the orientability threshold. Therefore, even when we unglue those vertices, if our segment lengths are small enough compared to $$n$$ (i.e. for large enough $$\ell$$), we can only add at most the ends to the orientable vertices, which is not enough to make the whole thing orientable. Therefore, $$f_k \leq c_k^*$$ (this proof is essentially a summary of the one found in the paper by Dietfelbinger et al.). Essentially, the same trick of glueing the ends works for band graphs as well.
 Furthermore, we might even conjecture that *any* family of $$k$$-uniform hypergraphs where every edge is selected independently and with the same distribution over the vertices
 has an orientability threshold of at most $$c_k^{-1*}$$.
 
@@ -225,6 +225,24 @@ of $$n$$, and the corresponding overheads at the optimal values.
 
 <div id="b-optim-vs-n">
 </div>
+
+These optimal values look like they have the shape $$\ell = \Theta\left(\log(n)^2\right)$$ and $$b = \Theta\left(\log(n)^2\right)$$. If we do a quadratic regression
+on the data with $$\ell\sim a\log(n)^2 + b\log(n) + c$$, we get the coefficients $$a=2.54433$$, $$b=-32.5$$, and $$c=124.13$$. The same fit for $$b$$ gives $$a=1.64468$$,
+$$b=-25.46$$, and $$c=110.427$$. Here are the plots with the potential curve fit:
+
+<div id="l-optim-fit"></div>
+<div id="b-optim-fit"></div>
+
+Similarly, one can find approximations for the necessary overhead assuming the optimal parameter value. For example, the overhead for the segmented hypergraph is approximately
+$$f_3 + 1.5n^{-0.277}$$, and the overhead for the band hypergraph is approximately $$h_k + 2.1n^{-0.285}$$ (Recall that $$f_k\approx h_k\approx 1.0894$$ are close
+to the orientability thresholds of random hypergraphs).
+Obviously, these are just numerical approximations,
+though they match the data quite accurately. If we extrapolate these functions, then in practice, the segmented graph is better than the band graph until $$n=10^{18}$$,
+so essentially for any reasonable data.
+
+# Conclusion
+
+# Sources
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}" async></script>
