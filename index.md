@@ -527,7 +527,9 @@ we can actually get this overhead down to.
 ## Sources
 
 [Bloom Filters](https://en.wikipedia.org/wiki/Bloom_filter)
+
 [Birthday Paradox](https://en.wikipedia.org/wiki/Birthday_problem)
+
 [Original Bloomier Filter Paper](https://www.cs.princeton.edu/~chazelle/pubs/soda-rev04.pdf)
 
 
