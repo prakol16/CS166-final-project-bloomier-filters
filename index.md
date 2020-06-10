@@ -524,4 +524,11 @@ But can we actually do better, by reducing this 23% overhead to
 something even smaller? As Keith says so often, if the answer was no, we probably wouldn't be asking, so continue over to [part 2](part2) to see how low
 we can actually get this overhead down to.
 
+## Sources
+
+[Bloom Filters](https://en.wikipedia.org/wiki/Bloom_filter)
+[Birthday Paradox](https://en.wikipedia.org/wiki/Birthday_problem)
+[Original Bloomier Filter Paper](https://www.cs.princeton.edu/~chazelle/pubs/soda-rev04.pdf)
+
+
 <script type="text/javascript" src="{{ '/assets/js/interactive.js' | relative_url }}"></script>
