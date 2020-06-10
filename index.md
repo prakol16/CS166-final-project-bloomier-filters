@@ -431,28 +431,19 @@ $$
 $$
 =  \sum_{s=1}^n \left(\frac{e}{s}\right)^s \left(\frac{e^{k/2}}{(2c)^{k/2}}\right)^s \left( \frac{s}{n} \right)^{ks/2}.
 $$
-
 Since $$c > 2$$, it is clear that if we take $$n$$ sufficiently large, we can bound the above sum by
 $$
 \sum_{s=1}^{\infty} \left(\frac{e^{k/2}}{4^{k/2}}\right)^s
 $$
-which is a value that is strictly less than $$1$$.
+which is a value strictly less than $$1$$.
 
+## Tuning Our Filter in Practice
 
-
-## Tuning Our Filter
-
-Say we want a false positive rate of at most $$0\lt\epsilon{}\lt1$$. That is, books not in our
-collection are assigned a database with probability $$\epsilon{}$$. Our false positive
-rate was $$\frac{k}{2^q}$$, so it is enough to choose $$q = \left\lceil\log_2
-\frac{k}{\epsilon{}}\right\rceil = O(\log \epsilon^{-1})$$.
-
-TODO: Write out the binomial coefficients showing that the expected number of
-vertices that can be removed at each stage of the critical hash algorithm
-(because they hash to a unique location) is proportional to the number of
-remaining vertices, so that the creation time is expected $$O(n\log n)$$.
-
-## (Optional) Tips and tricks to improve the runtime in practice
+We have already seen that, to guarantee a false positive rate of $$\epsilon$$, it is enough to choose $$q = \log k + \log \epsilon^{-1}$$, for a total memory usage of $$m(\log k + \log R + \log \epsilon^{-1})$$. In the previous section, we showed that
+taking $$m=(2 + \delta{})kn$$ for any $$\delta{}>0$$ guarantees that for large $$n$$, we need
+expected $$O(1)$$ attempts to construct the filter. Taking $$k$$ and $$R$$ to be
+fixed constants, this means that our filter takes $$O(n\log \epsilon^{-1})$$ space. As
+we now show, we can construct the filter in $$O(n)$$ time.
 
 A naive implementation of the algorithm to build the Bloomier filter table might look like this (in pseudocode):
 
