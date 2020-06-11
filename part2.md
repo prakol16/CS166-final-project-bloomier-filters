@@ -245,6 +245,8 @@ so essentially for any reasonable data.
 
 ## Sources
 
+[Dense Peelable Random Uniform Hypergraphs](https://arxiv.org/pdf/1907.04749.pdf)
+
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script type="text/javascript" src="{{ '/assets/js/graphs.js' | relative_url }}" async></script>
 
