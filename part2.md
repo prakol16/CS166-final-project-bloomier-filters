@@ -3,7 +3,7 @@ comments: true
 title: Bloomier Filters (Part 2)
 mathjax: true
 ---
-[<i class="arrow arrow-left"></i>Part 1](../)
+[<i class="arrow arrow-left"></i>Part 1](.)
 
 ## Hypergraphs
 
