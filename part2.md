@@ -103,7 +103,7 @@ We'll call this a limited bandwidth graph, or a band graph for short. Instead of
 Just as we have the peelability threshold for ordinary random hypergraphs $$c_3^{-1}$$, we can also define the constants $$f_{3}^{-1}$$,
 the peelability threshold for fuse graphs, and $$h_{3}^{-1}$$, the peelability threshold for band graphs. First, it is not actually clear that these definitions make sense. The constructions
 of fuse graphs and band graphs require additional parameters $$\ell$$ and $$b$$, so shouldn't we define them as $$f_{3,\ell}^{-1}$$? Actually, it turns out that if we define $$f_3^{-1}$$ to
-be the threshold as $$\ell\rightarrow\infty$$, then the threshold for any finite $$\ell$$ is simply $$f_3^{-1}\cdot\frac{\ell+2}{\ell}$$ (or more generally the ratio is $$(\ell+k-1)/\ell$$.
+be the threshold as $$\ell\rightarrow\infty$$, then the threshold for any finite $$\ell$$ is simply $$f_3^{-1}\cdot\frac{\ell+2}{\ell}$$ (or more generally the ratio is $$(\ell+k-1)/\ell$$).
 This is proven in the paper, and is essentially an artifact of the finiteness of our segments. Similarly, we can define $$h_3^{-1}$$ to be the
 limiting threshold as $$b\rightarrow\infty$$, so that for finite $$b$$, we have $$h_{3,b}^{-1}=h_3^{-1}\cdot\frac{b+1}{b}$$.
 

@@ -452,7 +452,7 @@ vertices that can be removed at each stage of the critical hash algorithm
 (because they hash to a unique location) is proportional to the number of
 remaining vertices, so that the creation time is expected $$O(n\log n)$$.
 
-## (Optional) Tips and tricks to improve the runtime in practice
+## Improving the runtime
 
 A naive implementation of the algorithm to build the Bloomier filter table might look like this (in pseudocode):
 
