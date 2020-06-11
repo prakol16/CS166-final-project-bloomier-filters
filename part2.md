@@ -187,8 +187,11 @@ we pick a token from the left box, which occurs with probability
 $$\frac{n}{N} = C\Delta x n = C\Delta x n - \frac{C\Delta x N}{2} + \frac{C\Delta x N}{2} = Cx + \frac{1}{2} = P(x) $$
 
 It is clear, however, that in the limit, if we treat the tokens as distinct, every token has an equal chance of being in either box by symmetry.
-This is the invariant distribution. Therefore, the ultimate distribution of the number of tokens in the left box is $$n\sim\text{Binom}(N, 1/2)$$. Since this has
-expectation $$N/2$$, and since $$x = (n - N/2)\Delta x$$, we have $$\mathbb{E}(x) = (N/2 - N/2)\Delta x = 0$$, so our estimator is unbiased. Moreover, $$\text{Var}[n] = N/4$$. Therefore,
+This is the invariant distribution. Therefore, the ultimate distribution of the number of tokens in the left box is $$n\sim\text{Binom}(N, 1/2)$$. There is a minor
+technicality that the parity of $$n$$ depends on the parity of the number of steps, so strictly speaking, the Markov chain doesn't actually converge (it alternates between two states).
+but we can resolve this by saying that we end on an even or odd step with equal probability.
+In practice, this doesn't matter since our step size wasn't constant, but was annealed, so this parity issue doesn't appear.
+Since $$\text{Binom}(N, 1/2)$$ has expectation $$N/2$$, and since $$x = (n - N/2)\Delta x$$, we have $$\mathbb{E}(x) = (N/2 - N/2)\Delta x = 0$$, so our estimator is unbiased. Moreover, $$\text{Var}[n] = N/4$$. Therefore,
 we have $$\text{Var}[x] = \Var[n\Delta x] = N\Delta x^2/4 = \Delta x / (4C)$$. Thus, the standard deviation is $$\sqrt{\Delta x/(4C)}$$.
 
 In our simulations, we used $$1000$$ iterations, and a step rate that was annealed exponentially based on how close to half of the last $$32$$ simulations were a success.
