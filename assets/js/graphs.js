@@ -586,7 +586,7 @@ var createNvsMN_BandConvergenceTransform = function() {
     traces.push(trace);
   }
   var layout = {
-    title: 'Transformed overhead vs n for band random hypergraph',
+    title: 'Log overhead vs n for band random hypergraph',
     xaxis: { title: '$n$', type: 'log' },
     yaxis: { title: 'Distance from convergence', type: 'log' }
   };
