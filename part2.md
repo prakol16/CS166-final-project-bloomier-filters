@@ -243,6 +243,13 @@ so essentially for any reasonable data.
 
 ## Conclusion
 
+We discussed a way of constructing hypergraphs introduced and explored in the paper "Dense Peelable Random Uniform Hypergraphs." While their results were primarily theoretical,
+we exploredd empirically their construction and a variation on it that they proposed. Moreover, we derived optimal values of all of the various constants for $$k=3$$ and conjectured
+that the convergence rate was $$\Theta (n^{-1/2})$$. Ultimately, based on the final graphs, it seems that segmented hypergraphs converge a bit faster than band graphs
+for their respective optimal values. Moreover, segmented hypergraphs perform better in practice than ordinary random hypergraphs starting around $$n=10^4$$.
+Finally, the optimal parameter value (i.e. optimal $$b$$ or optimal $$\ell$$) seems to be $$\Theta(\log(n)^2)$$, although this is just by crude numerical approximation.
+We hope that this analysis will allow for more memory efficient implementations of Bloomier filters in practice.
+
 ## Sources
 
 [Dense Peelable Random Uniform Hypergraphs](https://arxiv.org/pdf/1907.04749.pdf)
