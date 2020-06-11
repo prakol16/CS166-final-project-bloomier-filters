@@ -256,6 +256,7 @@ We hope that this analysis will allow for more memory efficient implementations 
 ## Sources
 
 [Dense Peelable Random Uniform Hypergraphs](https://arxiv.org/pdf/1907.04749.pdf)
+
 [Github repository for experiments](https://github.com/prakol16/random-hypergraphs)
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
